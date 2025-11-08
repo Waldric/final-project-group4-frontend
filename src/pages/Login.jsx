@@ -1,11 +1,47 @@
-import React from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import mieLogo from "/mie-logo.png";
 import mieLeft from "/login-leftside.jpg";
 
 const Login = () => {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // 👈 added toggle state
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    console.log("handleSubmit called", { email });
+    setError("");
+
+    try {
+      const res = await axios.post("http://localhost:5000/api/auth/login", { email, password });
+      const user = res.data.user;
+
+      // persist user so reloads won't lose it
+      try {
+        sessionStorage.setItem("mie_user", JSON.stringify(user));
+      } catch (err) {
+        /* ignore storage errors */
+      }
+
+      // successful -> redirect to /test and pass user via state
+      navigate("/test", { state: { user } });
+    } catch (err) {
+      console.error("login error:", err);
+      if (err.response && err.response.status === 404)
+        setError(err.response.data.message || "Not found");
+      else if (err.response && err.response.status === 400)
+        setError(err.response.data.message || "Bad request");
+      else setError("Server error. Check backend.");
+    }
+  };
+
   return (
     <div className="flex h-screen bg-[#F5F7FB]">
-      {/* Left Image Section */}
+      {/* Left side image (hidden on mobile) */}
       <div className="hidden md:flex w-1/2">
         <img
           src={mieLeft}
@@ -14,7 +50,7 @@ const Login = () => {
         />
       </div>
 
-      {/* Right Login Form Section */}
+      {/* Right side login form */}
       <div className="flex flex-col justify-center items-center w-full md:w-1/2 bg-base-100 rounded-r-2xl p-10">
         <div className="max-w-sm w-full text-center">
           <img
@@ -27,37 +63,67 @@ const Login = () => {
             Enter your email and password to access your account.
           </p>
 
-          <form className="space-y-4">
+          <form onSubmit={handleSubmit} method="post" className="space-y-4">
+            {/* Email Field */}
             <div>
               <label className="label">
                 <span className="label-text font-medium">Email:</span>
               </label>
               <input
+                name="email"
                 type="email"
                 placeholder="Enter your email"
                 className="input input-bordered w-full"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
               />
             </div>
 
+            {/* Password Field with Show/Hide Toggle */}
             <div>
               <label className="label">
                 <span className="label-text font-medium">Password:</span>
               </label>
-              <input
-                type="password"
-                placeholder="Enter your password"
-                className="input input-bordered w-full"
-              />
+              <div className="relative">
+                <input
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter your password"
+                  className="input input-bordered w-full pr-10"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700 focus:outline-none"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? "🙈" : "👁️"}
+                </button>
+              </div>
             </div>
 
-            <button className="btn btn-primary w-full mt-4">Log In</button>
+            {/* Error Message */}
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+
+            {/* Login Button */}
+            <button type="submit" className="btn btn-primary w-full mt-4">
+              Log In
+            </button>
           </form>
 
           <p className="mt-4 text-sm text-gray-500">
             Don’t have an account?{" "}
-            <a href="#" className="link link-primary">
+            <button
+              type="button"
+              onClick={() => navigate("/register")}
+              className="link link-primary"
+            >
               Sign Up
-            </a>
+            </button>
           </p>
 
           <p className="text-xs text-gray-400 mt-6">
