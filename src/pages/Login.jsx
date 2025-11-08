@@ -8,26 +8,27 @@ const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // 👈 added toggle state
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("handleSubmit called", { email });
     setError("");
 
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", { email, password });
+      const res = await axios.post("http://localhost:5000/api/auth/login", {
+        email,
+        password,
+      });
       const user = res.data.user;
 
-      // persist user so reloads won't lose it
+      // persist user
       try {
         sessionStorage.setItem("mie_user", JSON.stringify(user));
       } catch (err) {
         /* ignore storage errors */
       }
 
-      // successful -> redirect to /test and pass user via state
       navigate("/test", { state: { user } });
     } catch (err) {
       console.error("login error:", err);
@@ -41,7 +42,7 @@ const Login = () => {
 
   return (
     <div className="flex h-screen bg-[#F5F7FB]">
-      {/* Left side image (hidden on mobile) */}
+      {/* Left side image */}
       <div className="hidden md:flex w-1/2">
         <img
           src={mieLeft}
@@ -51,12 +52,12 @@ const Login = () => {
       </div>
 
       {/* Right side login form */}
-      <div className="flex flex-col justify-center items-center w-full md:w-1/2 bg-base-100 rounded-r-2xl p-10">
+      <div className="flex flex-col justify-center items-center w-full md:w-1/2 bg-base-100 rounded-r-2xl p-10 relative">
         <div className="max-w-sm w-full text-center">
           <img
             src={mieLogo}
             alt="Medina Institute of Excellence Logo"
-            className="mx-auto mb-4 w-32"
+            className="mx-auto mb-2 w-40 -mt-4" // 👈 made it bigger and moved up
           />
           <h1 className="text-3xl font-bold mb-2">Welcome!</h1>
           <p className="mb-6 text-gray-500 text-sm">
@@ -80,7 +81,7 @@ const Login = () => {
               />
             </div>
 
-            {/* Password Field with Show/Hide Toggle */}
+            {/* Password Field with Show/Hide Button */}
             <div>
               <label className="label">
                 <span className="label-text font-medium">Password:</span>
@@ -90,7 +91,7 @@ const Login = () => {
                   name="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
-                  className="input input-bordered w-full pr-10"
+                  className="input input-bordered w-full pr-12" // 👈 space for icon
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -101,11 +102,11 @@ const Login = () => {
                   className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700 focus:outline-none"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
-                  {showPassword ? "🙈" : "👁️"}
+                  <span className="text-lg">{showPassword ? "🙈" : "👁️"}</span>
                 </button>
               </div>
             </div>
-
+            
             {/* Error Message */}
             {error && <p className="text-red-500 text-sm">{error}</p>}
 
