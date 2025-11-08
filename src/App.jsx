@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Sidebar from "./components/Sidebar";
 import TopNavbar from "./components/TopNavbar";
-import MainContent from "./components/MainContent";
+import MainContent from "./components/Maincontent";
 
 export default function App() {
   const [activeItem, setActiveItem] = useState("dashboard");
