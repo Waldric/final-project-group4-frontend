@@ -7,7 +7,7 @@ import Test from "./pages/Test";
 // dashboard components
 import Sidebar from "./components/Sidebar";
 import TopNavbar from "./components/TopNavbar";
-import MainContent from "./components/MainContent";
+import MainContent from "./components/Maincontent";
 
 function DashboardPage() {
   const [activeItem, setActiveItem] = useState("dashboard");
