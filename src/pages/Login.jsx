@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import mieLogo from "/mie-logo.png";
 import mieLeft from "/login-leftside.jpg";
+import { useAuth } from "../contexts/AuthContext";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -10,6 +11,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const { setUser } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,11 +27,13 @@ const Login = () => {
       // persist user
       try {
         sessionStorage.setItem("mie_user", JSON.stringify(user));
+        setUser(user);
+
       } catch (err) {
         /* ignore storage errors */
       }
 
-      navigate("/test", { state: { user } });
+      navigate("/dashboard", { state: { user } }); // NOTE: Changed route so it goes to dashboard instead of test
     } catch (err) {
       console.error("login error:", err);
       if (err.response && err.response.status === 404)

@@ -1,67 +1,46 @@
 // src/App.jsx
-import React, { useState, useEffect } from "react";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+} from "react-router-dom";
 import Login from "./pages/Login";
 import Test from "./pages/Test";
-
-// dashboard components
-import Sidebar from "./components/Sidebar";
-import TopNavbar from "./components/TopNavbar";
-import MainContent from "./components/Maincontent";
-
-function DashboardPage() {
-  const [activeItem, setActiveItem] = useState("dashboard");
-  const [isOpen, setIsOpen] = useState(false);
-  const location = useLocation();
-
-  const [user, setUser] = useState(() => {
-    try {
-      const s = sessionStorage.getItem("mie_user");
-      return s ? JSON.parse(s) : location.state?.user || null;
-    } catch {
-      return location.state?.user || null;
-    }
-  });
-
-  // if Login passed user via location.state, persist it to sessionStorage and sync state
-  useEffect(() => {
-    if (!user && location.state?.user) {
-      try {
-        sessionStorage.setItem("mie_user", JSON.stringify(location.state.user));
-      } catch {
-        // ignore
-      }
-      setUser(location.state.user);
-    }
-  }, [location.state, user]);
-
-  // protect dashboard: if no user, redirect to login
-  if (!user) return <Navigate to="/" replace />;
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <Sidebar
-        activeItem={activeItem}
-        setActiveItem={setActiveItem}
-        isOpen={isOpen}
-        setIsOpen={setIsOpen}
-      />
-
-      {/* pass user and setUser so TopNavbar can show profile & logout */}
-      <TopNavbar user={user} setUser={setUser} />
-
-      <MainContent activeItem={activeItem} />
-    </div>
-  );
-}
+import DashboardLayout from "./pages/DashboardLayout";
+import DashboardIndex from "./pages/DashboardIndex";
+import StudentPageSample from "./pages/student/StudentPageSample";
+import TeacherPageSample from "./pages/teacher/TeacherPageSample";
+import AdminPageSample from "./pages/admin/AdminPageSample";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/test" element={<DashboardPage />} />
-        <Route path="/dashboard" element={<Navigate to="/test" replace />} />
+
+        {/* Dashboard layout with nested routes */}
+        <Route path="/dashboard" element={<DashboardLayout />}>
+          <Route index element={<DashboardIndex />} /> {/* /dashboard */}
+          {/* Student pages below here */}
+          <Route
+            path="/dashboard/student/grades"
+            element={<StudentPageSample />}
+          />
+          {/* Teacher pages below here */}
+          <Route
+            path="/dashboard/teacher/classes"
+            element={<TeacherPageSample />}
+          />
+          {/* Admin pages below here*/}
+          <Route
+            path="/dashboard/admin/manage-accounts"
+            element={<AdminPageSample />}
+          />
+        </Route>
+
+        {/* Catch-all redirect */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

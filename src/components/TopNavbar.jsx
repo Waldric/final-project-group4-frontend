@@ -11,6 +11,7 @@ const TopNavbar = ({ user, setUser }) => {
     // Clear stored user and redirect to login
     try {
       sessionStorage.removeItem("mie_user");
+      setUser(null);
     } catch (err) {
       // ignore
     }
