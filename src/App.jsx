@@ -1,17 +1,53 @@
-import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+// src/App.jsx
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+} from "react-router-dom";
 import Login from "./pages/Login";
 import Test from "./pages/Test";
+import DashboardLayout from "./pages/DashboardLayout";
+import DashboardIndex from "./pages/DashboardIndex";
+import StudentPageSample from "./pages/student/StudentPageSample";
+import TeacherPageSample from "./pages/teacher/TeacherPageSample";
+import AdminPageSample from "./pages/admin/AdminPageSample";
+import ManageSubjects from "./pages/admin/ManageSubjects";
 
-function App() {
+export default function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/test" element={<Test />} />
+
+        {/* Dashboard layout with nested routes */}
+        <Route path="/dashboard" element={<DashboardLayout />}>
+          <Route index element={<DashboardIndex />} /> {/* /dashboard */}
+          {/* Student pages below here */}
+          <Route
+            path="/dashboard/student/grades"
+            element={<StudentPageSample />}
+          />
+          {/* Teacher pages below here */}
+          <Route
+            path="/dashboard/teacher/classes"
+            element={<TeacherPageSample />}
+          />
+          {/* Admin pages below here*/}
+          <Route
+            path="/dashboard/admin/manage-accounts"
+            element={<AdminPageSample />}
+          />
+          <Route
+            path="/dashboard/admin/subjects"
+            element={<ManageSubjects />}
+          />
+        </Route>
+
+        {/* Catch-all redirect */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );
 }
-
-export default App;
