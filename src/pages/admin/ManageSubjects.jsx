@@ -49,9 +49,9 @@ const ManageSubjects = () => {
 
       {/* Dashboard Content */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 min-h-96">
-        {/* Filter, Sort and Search*/}
+        {/* Filter, Sort, Search, and Edit Buttons*/}
         <div className="[&>div]:m-5">
-          {/* Filter by College Department Buttons */}
+          {/* Filter by College Department Buttons and Editing Buttons*/}
           <div className="flex">
             <form className="mx-1 flex-1 justify-between flex bg-[#F5F5F5] rounded-4xl">
               {departmentsList.map((department, index) => (
@@ -62,9 +62,14 @@ const ManageSubjects = () => {
                   aria-label={department}
                 />
               ))}
-              <input className="btn rounded-4xl bg-[#5603AD] text-gray-200 " type="reset" value="×" />
+              <input
+                className="btn rounded-4xl bg-[#5603AD] text-gray-200 "
+                type="reset"
+                value="×"
+              />
             </form>
-            
+
+            {/* Edit Subjects Buttons */}
             {!btnStats.deleteSub && !btnStats.editSub ? (
               <div className="flex flex-2 justify-end *:mx-1">
                 <button className="btn bg-[#F7B801]">
@@ -88,7 +93,11 @@ const ManageSubjects = () => {
               </div>
             ) : null}
             {btnStats.deleteSub ? (
-              <div className="flex flex-3 justify-end *:mx-1">
+              <div className="flex flex-2 justify-end *:mx-1">
+                <button className="btn bg-error">
+                  <TrashIcon className="w-5 h-5" />
+                  <span>Delete Selected Subjects</span>
+                </button>
                 <button
                   className="btn"
                   onClick={() =>
@@ -98,14 +107,10 @@ const ManageSubjects = () => {
                   <ArrowLeftEndOnRectangleIcon className="w-5 h-5" />
                   <span>Cancel Deletion</span>
                 </button>
-                <button className="btn bg-error">
-                  <TrashIcon className="w-5 h-5" />
-                  <span>Delete Selected Subjects</span>
-                </button>
               </div>
             ) : null}
             {btnStats.editSub ? (
-              <div className="flex flex-3 justify-end *:mx-1">
+              <div className="flex flex-2 justify-end *:mx-1">
                 <button
                   className="btn"
                   onClick={() => setBtnStatus({ ...btnStats, editSub: false })}
@@ -119,28 +124,28 @@ const ManageSubjects = () => {
           <div className="flex">
             {/* Dropdown Filters */}
             <div className="flex flex-3 mr-2 [&>div]:mx-2">
-              <div>
-                <select className="select">
-                  <option disabled selected>
-                    Year/Grade
-                  </option>
-                  <option>Y</option>
-                  <option>Amber</option>
-                  <option>Velvet</option>
-                </select>
+              <div className="flex-1">
+                <input
+                  type="number"
+                  className="input join-item w-full validator"
+                  placeholder="Year/Grade"
+                  min="0"
+                  max="12"
+                />
               </div>
-              <div>
+              <div className="flex-1">
                 <select className="select">
-                  <option disabled selected>
-                    Semester
-                  </option>
-                  <option>Crimson</option>
-                  <option>Amber</option>
-                  <option>Velvet</option>
+                  <option disabled={true} value={""} selected> Semester </option>
+                  <option value={"1"}>1</option>
+                  <option value={"2"}>2</option>
+                  <option value={"3"}>3</option>
+                  <option value={"4"}>4</option>
                 </select>
               </div>
             </div>
+            {/* Search and Sort */}
             <div className="flex justify-end flex-2">
+              {/* Search */}
               <div className="mx-3 flex-2">
                 <input
                   type="text"
@@ -148,6 +153,7 @@ const ManageSubjects = () => {
                   placeholder="Search for Subject Name"
                 />
               </div>
+              {/* Sort */}
               <div>
                 <button className="btn">
                   <BarsArrowDownIcon className="w-5 h-5" />
@@ -190,7 +196,7 @@ const ManageSubjects = () => {
                   <td>{subject.subject_name}</td>
                   <td>{subject.units}.00</td>
                   <td>{subject.department}</td>
-                  <td>Year {subject.year_level}</td>
+                  <td>{subject.department === "IS" ? ("Grade") : ("Year")} {subject.year_level}</td>
                   <td>Semester {subject.semester}</td>
                   {btnStats.editSub ? (
                     <td className="items-center">

@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useReducer } from "react";
+import { createContext, useContext, useEffect, useReducer, useState } from "react";
 import { useFetch } from "../hooks/useFetch";
 
 const SubjectContext = createContext({ data: null });
@@ -6,7 +6,16 @@ const SubjectContext = createContext({ data: null });
 export const subjectsReducer = (state, action) => {
   switch (action.type) {
     case "SET_SUBJECTS":
-      return { ...state, subjects: action.payload ?? [] };
+      return {
+        ...state,
+        subjects: action.payload ?? [],
+        filteredSubjects: action.payload ?? [],
+      };
+    case "SET_FILTERED_SUBJECTS":
+      return {
+        ...state,
+        filteredSubjects: action.payload ?? [],
+      };
     case "CREATE_SUBJECT":
       return {
         ...state,
@@ -22,8 +31,15 @@ export const subjectsReducer = (state, action) => {
 export const SubjectProvider = ({ children }) => {
   const [state, dispatch] = useReducer(subjectsReducer, {
     subjects: [],
+    filteredSubjects: [],
     loading: false,
     error: null,
+  });
+  const [filter, setFilters] = useState({
+    department: [],
+    year: null,
+    semester: null,
+    name: null
   });
 
   // Fetch all subjects
