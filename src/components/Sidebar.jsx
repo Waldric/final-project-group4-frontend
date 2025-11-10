@@ -45,30 +45,30 @@ const Sidebar = ({ activeItem, setActiveItem, isOpen, setIsOpen, user }) => {
         label: "Enrollment",
         path: "/dashboard/student/enrollment",
       },
-      {
-        id: "tuition",
-        icon: CreditCardIcon,
-        label: "Tuition & Balance",
-        path: "/dashboard/student/tuition",
-      },
-      {
-        id: "payment",
-        icon: ReceiptRefundIcon,
-        label: "Payment History",
-        path: "/dashboard/student/payment-history",
-      },
-      {
-        id: "records",
-        icon: DocumentTextIcon,
-        label: "My Records",
-        path: "/dashboard/student/records",
-      },
-      {
-        id: "announcements",
-        icon: MegaphoneIcon,
-        label: "Announcements",
-        path: "/dashboard/student/announcements",
-      },
+      // {
+      //   id: "tuition",
+      //   icon: CreditCardIcon,
+      //   label: "Tuition & Balance",
+      //   path: "/dashboard/student/tuition",
+      // },
+      // {
+      //   id: "payment",
+      //   icon: ReceiptRefundIcon,
+      //   label: "Payment History",
+      //   path: "/dashboard/student/payment-history",
+      // },
+      // {
+      //   id: "records",
+      //   icon: DocumentTextIcon,
+      //   label: "My Records",
+      //   path: "/dashboard/student/records",
+      // },
+      // {
+      //   id: "announcements",
+      //   icon: MegaphoneIcon,
+      //   label: "Announcements",
+      //   path: "/dashboard/student/announcements",
+      // },
     ],
 
     Teacher: [
@@ -90,24 +90,24 @@ const Sidebar = ({ activeItem, setActiveItem, isOpen, setIsOpen, user }) => {
         label: "Student Grades",
         path: "/dashboard/teacher/grades",
       },
-      {
-        id: "disciplinary_records",
-        icon: DocumentDuplicateIcon,
-        label: "Disciplinary Records",
-        path: "/dashboard/teacher/disciplinary-records",
-      },
+      // {
+      //   id: "disciplinary_records",
+      //   icon: DocumentDuplicateIcon,
+      //   label: "Disciplinary Records",
+      //   path: "/dashboard/teacher/disciplinary-records",
+      // },
       {
         id: "teacher_schedule",
         icon: CalendarDaysIcon,
         label: "Schedule",
         path: "/dashboard/teacher/schedule",
       },
-      {
-        id: "announcements",
-        icon: MegaphoneIcon,
-        label: "Announcements",
-        path: "/dashboard/teacher/announcements",
-      },
+      // {
+      //   id: "announcements",
+      //   icon: MegaphoneIcon,
+      //   label: "Announcements",
+      //   path: "/dashboard/teacher/announcements",
+      // },
     ],
 
     Admin: [
@@ -136,23 +136,23 @@ const Sidebar = ({ activeItem, setActiveItem, isOpen, setIsOpen, user }) => {
         path: "/dashboard/admin/teacher-records",
       },
       {
-        id: "subjects_and_courses",
+        id: "subjects",
         icon: BookOpenIcon,
-        label: "Subjects & Courses",
-        path: "/dashboard/admin/subjects-courses",
+        label: "Manage Subjects",
+        path: "/dashboard/admin/subjects",
       },
-      {
-        id: "billing_and_payments",
-        icon: CreditCardIcon,
-        label: "Billing & Payments",
-        path: "/dashboard/admin/billing-payments",
-      },
-      {
-        id: "announcements",
-        icon: MegaphoneIcon,
-        label: "Announcements",
-        path: "/dashboard/admin/announcements",
-      },
+      // {
+      //   id: "billing_and_payments",
+      //   icon: CreditCardIcon,
+      //   label: "Billing & Payments",
+      //   path: "/dashboard/admin/billing-payments",
+      // },
+      // {
+      //   id: "announcements",
+      //   icon: MegaphoneIcon,
+      //   label: "Announcements",
+      //   path: "/dashboard/admin/announcements",
+      // },
       {
         id: "reports_and_analytics",
         icon: ChartPieIcon,

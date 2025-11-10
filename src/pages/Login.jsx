@@ -18,7 +18,10 @@ const Login = () => {
     setError("");
 
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
+      const api = axios.create({
+        baseURL: import.meta.env.VITE_API_BASE_URL,
+      });
+      const res = await api.post("/auth/login", {
         email,
         password,
       });
@@ -28,7 +31,6 @@ const Login = () => {
       try {
         sessionStorage.setItem("mie_user", JSON.stringify(user));
         setUser(user);
-
       } catch (err) {
         /* ignore storage errors */
       }
@@ -110,7 +112,7 @@ const Login = () => {
                 </button>
               </div>
             </div>
-            
+
             {/* Error Message */}
             {error && <p className="text-red-500 text-sm">{error}</p>}
 

@@ -13,6 +13,7 @@ import DashboardIndex from "./pages/DashboardIndex";
 import StudentPageSample from "./pages/student/StudentPageSample";
 import TeacherPageSample from "./pages/teacher/TeacherPageSample";
 import AdminPageSample from "./pages/admin/AdminPageSample";
+import ManageSubjects from "./pages/admin/ManageSubjects";
 
 export default function App() {
   return (
@@ -37,6 +38,10 @@ export default function App() {
           <Route
             path="/dashboard/admin/manage-accounts"
             element={<AdminPageSample />}
+          />
+          <Route
+            path="/dashboard/admin/subjects"
+            element={<ManageSubjects />}
           />
         </Route>
 
