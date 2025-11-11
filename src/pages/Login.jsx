@@ -12,36 +12,65 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const { setUser } = useAuth();
+  const USE_FAKE_LOGIN = true;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
-        email,
-        password,
-      });
-      const user = res.data.user;
+  if (USE_FAKE_LOGIN) {
+    // ---- TEMP FAKE LOGIN (for testing) ----
+    const user = {
+      id: "dev-123",
+      account_id: "ACC-0001",
+      firstname: "John",
+      lastname: "Doe",
+      email: email || "dev@example.com",
+      user_type: "admin", // or "admin" / "teacher" as needed
+      department: "CS",
+      photo: null,
+      status: "Active",
+    };
 
-      // persist user
-      try {
-        sessionStorage.setItem("mie_user", JSON.stringify(user));
-        setUser(user);
-
-      } catch (err) {
-        /* ignore storage errors */
-      }
-
-      navigate("/dashboard", { state: { user } }); // NOTE: Changed route so it goes to dashboard instead of test
+    // persist user (same as real flow)
+    try {
+      sessionStorage.setItem("mie_user", JSON.stringify(user));
+      setUser(user);
     } catch (err) {
-      console.error("login error:", err);
-      if (err.response && err.response.status === 404)
-        setError(err.response.data.message || "Not found");
-      else if (err.response && err.response.status === 400)
-        setError(err.response.data.message || "Bad request");
-      else setError("Server error. Check backend.");
+      /* ignore storage errors */
     }
+
+    // navigate as if logged in
+    navigate("/dashboard", { state: { user } });
+    // ----------------------------------------
+  } else {
+    // ---- REAL LOGIN (original code) ----
+    const res = await axios.post("http://localhost:5000/api/auth/login", {
+      email,
+      password,
+    });
+    const user = res.data.user;
+
+    // persist user
+    try {
+      sessionStorage.setItem("mie_user", JSON.stringify(user));
+      setUser(user);
+    } catch (err) {
+      /* ignore storage errors */
+    }
+
+    navigate("/dashboard", { state: { user } });
+    // -------------------------------------
+  }
+} catch (err) {
+  console.error("login error:", err);
+  if (err.response && err.response.status === 404)
+    setError(err.response.data.message || "Not found");
+  else if (err.response && err.response.status === 400)
+    setError(err.response.data.message || "Bad request");
+  else setError("Server error. Check backend.");
+}
   };
 
   return (
