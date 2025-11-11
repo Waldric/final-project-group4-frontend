@@ -1,7 +1,6 @@
 // dashboard components
 import Sidebar from "../components/Sidebar";
 import TopNavbar from "../components/TopNavbar";
-import MainContent from "../components/MainContent";
 import { Navigate, Outlet, useLocation } from "react-router";
 import React, { useState, useEffect } from "react";
 import Footer from "../components/Footer";
