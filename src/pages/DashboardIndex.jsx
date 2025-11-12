@@ -22,19 +22,88 @@ const DashboardIndex = () => {
 
   const headerContents = headerContentsByRole[user.user_type] || [];
 
+  // Admin Default Page
+  if (user.user_type === "Admin") {
+    return (
+      <div className="flex-1 p-4 md:p-8">
+        {/* Page Header */}
+        <Header
+          location={"Dashboard"}
+          subheader={headerContents.headerSubtext}
+        />
+
+        {/* Dashboard Content */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 min-h-96">
+          <p className="text-gray-500 text-center py-12">
+            Dashboard content for the{" "}
+            <span className="font-semibold text-[#5603AD]">
+              {user.user_type} Role
+            </span>{" "}
+            goes here...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Teacher Default Page
+  if (user.user_type === "Teacher") {
+    return (
+      <div className="flex-1 p-4 md:p-8">
+        {/* Page Header */}
+        <Header
+          location={"Dashboard"}
+          subheader={headerContents.headerSubtext}
+        />
+
+        {/* Dashboard Content */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 min-h-96">
+          <p className="text-gray-500 text-center py-12">
+            Dashboard content for the{" "}
+            <span className="font-semibold text-[#5603AD]">
+              {user.user_type} Role
+            </span>{" "}
+            goes here...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Student Default Page
+  if (user.user_type === "Student") {
+    return (
+      <div className="flex-1 p-4 md:p-8">
+        {/* Page Header */}
+        <Header
+          location={"Dashboard"}
+          subheader={headerContents.headerSubtext}
+        />
+
+        {/* Dashboard Content */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 min-h-96">
+          <p className="text-gray-500 text-center py-12">
+            Dashboard content for the{" "}
+            <span className="font-semibold text-[#5603AD]">
+              {user.user_type} Role
+            </span>{" "}
+            goes here...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Default dashboard if user somehow logs in without Role
   return (
     <div className="flex-1 p-4 md:p-8">
       {/* Page Header */}
-      <Header location={"Dashboard"} subheader={headerContents.headerSubtext} />
+      <Header location={"Error!"} subheader={"Error! User type not loaded successfully"} />
 
       {/* Dashboard Content */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 min-h-96">
         <p className="text-gray-500 text-center py-12">
-          Dashboard content for the{" "}
-          <span className="font-semibold text-[#5603AD]">
-            {user.user_type} Role
-          </span>{" "}
-          goes here...
+          Reach out to admins if you somehow reached this page.
         </p>
       </div>
     </div>
