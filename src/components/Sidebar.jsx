@@ -90,12 +90,12 @@ const Sidebar = ({ activeItem, setActiveItem, isOpen, setIsOpen, user }) => {
         label: "Student Grades",
         path: "/dashboard/teacher/grades",
       },
-      // {
-      //   id: "disciplinary_records",
-      //   icon: DocumentDuplicateIcon,
-      //   label: "Disciplinary Records",
-      //   path: "/dashboard/teacher/disciplinary-records",
-      // },
+      {
+        id: "disciplinary_records",
+        icon: DocumentDuplicateIcon,
+        label: "Disciplinary Records",
+        path: "/dashboard/teacher/disciplinary-records",
+      },
       {
         id: "teacher_schedule",
         icon: CalendarDaysIcon,
