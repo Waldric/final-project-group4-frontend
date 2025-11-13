@@ -2,7 +2,7 @@ import React from 'react';
 
 const ClassCard = ({ classInfo, onClick }) => {
   
-  // ✅ Use the populated subject data
+  // Use the populated subject data
   const subjectName = classInfo.subject_id?.subject_name || "Unknown Subject";
   const schedule = `Section: C4A | ${classInfo.day || 'TBA'} ${classInfo.time || 'TBA'}`; // Section is not in the schema, hardcoding for now per Figma
   const room = `Room: ${classInfo.room || 'TBA'}`;
