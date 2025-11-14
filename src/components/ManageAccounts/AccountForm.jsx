@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const AccountForm = ({ showForm, setShowForm, editMode, form, handleChange, handleSubmit }) => {
+const AccountForm = ({ showForm, setShowForm, editMode, form, handleChange, handleSubmit, resetForm }) => {
   const departments = ["IS", "CCS", "COS", "COE", "System"];
   const [isEmailFocused, setIsEmailFocused] = useState(false);
 
@@ -11,7 +11,7 @@ const AccountForm = ({ showForm, setShowForm, editMode, form, handleChange, hand
     // Email validation for create mode
     if (name === "email" && !editMode) {
       // Allow empty or partial inputs during typing
-      const localPart = value.split("@")[0]; // Get part before any @ symbol
+      const localPart = value.split("@")[0];
       handleChange({ target: { name: "email", value: localPart ? `${localPart}@mie.edu.ph` : "" } });
       return;
     }
@@ -38,6 +38,17 @@ const AccountForm = ({ showForm, setShowForm, editMode, form, handleChange, hand
     ? departments
     : departments.filter((d) => d !== "System");
 
+  // Handle cancel with error handling
+  const handleCancel = () => {
+    try {
+      console.log("Cancel button clicked");
+      resetForm();
+      setShowForm(false);
+    } catch (error) {
+      console.error("Error in handleCancel:", error);
+    }
+  };
+
   return (
     <>
       {showForm && (
@@ -61,7 +72,7 @@ const AccountForm = ({ showForm, setShowForm, editMode, form, handleChange, hand
                 <input
                   type="text"
                   name="email"
-                  className="input input-bordered w-full pr-24" // Add padding for suffix
+                  className="input input-bordered w-full pr-24"
                   placeholder={editMode ? "Email" : "john.doe"}
                   required
                   value={editMode ? form.email : form.email.replace("@mie.edu.ph", "")}
@@ -137,7 +148,7 @@ const AccountForm = ({ showForm, setShowForm, editMode, form, handleChange, hand
               </select>
 
               <div className="flex justify-end gap-2 pt-2">
-                <button type="button" className="btn" onClick={() => setShowForm(false)}>
+                <button type="button" className="btn" onClick={handleCancel}>
                   Cancel
                 </button>
                 <button type="submit" className="btn btn-primary">

@@ -18,7 +18,7 @@ const ManageAccounts = () => {
   const [filterDept, setFilterDept] = useState("");
   const [sortOption, setSortOption] = useState("");
 
-  const [form, setForm] = useState({
+  const initialFormState = {
     _id: "",
     account_id: "",
     email: "",
@@ -27,7 +27,9 @@ const ManageAccounts = () => {
     lastname: "",
     user_type: "Student",
     department: "",
-  });
+  };
+
+  const [form, setForm] = useState(initialFormState);
 
   const fetchAccounts = async () => {
     setLoading(true);
@@ -69,6 +71,12 @@ const ManageAccounts = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const resetForm = () => {
+    console.log("Resetting form state");
+    setForm(initialFormState);
+    setEditMode(false);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -80,7 +88,7 @@ const ManageAccounts = () => {
         alert("Account created!");
       }
       setShowForm(false);
-      setEditMode(false);
+      resetForm();
       fetchAccounts();
     } catch (err) {
       console.error("Save error:", err);
@@ -107,6 +115,11 @@ const ManageAccounts = () => {
     }
   };
 
+  const handleShowAddForm = () => {
+    resetForm();
+    setShowForm(true);
+  };
+
   return (
     <div className="flex-1 p-4 md:p-8">
       <Header
@@ -122,7 +135,7 @@ const ManageAccounts = () => {
           setEditMode={setEditMode}
           deleteMode={deleteMode}
           setDeleteMode={setDeleteMode}
-          setShowForm={setShowForm}
+          setShowForm={handleShowAddForm}
         />
 
         <FiltersAndSearch
@@ -148,6 +161,7 @@ const ManageAccounts = () => {
           form={form}
           handleChange={handleChange}
           handleSubmit={handleSubmit}
+          resetForm={resetForm}
         />
       </div>
     </div>
