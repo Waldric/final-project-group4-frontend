@@ -15,6 +15,7 @@ import TeacherPageSample from "./pages/teacher/TeacherPageSample";
 import ManageGrades from "./pages/teacher/ManageGrades";
 import ManageDisciplinary from "./pages/teacher/ManageDisciplinary";
 import AdminPageSample from "./pages/admin/AdminPageSample";
+import ManageAccounts from "./pages/admin/ManageAccounts";
 import ManageSubjects from "./pages/admin/ManageSubjects";
 
 export default function App() {
@@ -47,7 +48,7 @@ export default function App() {
           {/* Admin pages below here*/}
           <Route
             path="/dashboard/admin/manage-accounts"
-            element={<AdminPageSample />}
+            element={<ManageAccounts />}
           />
           <Route
             path="/dashboard/admin/subjects"
