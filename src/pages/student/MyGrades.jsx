@@ -130,7 +130,7 @@ const MyGrades = () => {
                 <span className="font-normal text-gray-700">{selectedSemester}</span>
                 <ChevronDownIcon className="w-4 h-4" />
               </div>
-              <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-64">
+              <ul tabIndex={0} className="dropdown-content z-1 menu p-2 shadow bg-base-100 rounded-box w-64">
                 <li><a onClick={() => handleSemesterChange("2025-2026 First Semester")}>2025-2026 First Semester</a></li>
                 <li><a onClick={() => handleSemesterChange("2024-2025 Second Semester")}>2024-2025 Second Semester</a></li>
               </ul>
@@ -157,7 +157,7 @@ const MyGrades = () => {
                 <span className="font-normal text-gray-600">{selectedSort}</span>
                 <ChevronDownIcon className="w-4 h-4" />
               </div>
-              <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-48">
+              <ul tabIndex={0} className="dropdown-content z-1 menu p-2 shadow bg-base-100 rounded-box w-48">
                 <li><a onClick={() => handleSortChange("Code A-Z")}>Code A-Z</a></li>
                 <li><a onClick={() => handleSortChange("Code Z-A")}>Code Z-A</a></li>
                 <li><a onClick={() => handleSortChange("Grade High-Low")}>Grade High-Low</a></li>
@@ -167,7 +167,7 @@ const MyGrades = () => {
         </div>
 
         {/* --- Data List --- */}
-        <div className="flex-grow">
+        <div className="grow">
           {/* List Header */}
           <div className="grid grid-cols-12 gap-4 px-4 py-3 border-b-2 border-gray-200">
             <span className="col-span-1 text-sm font-medium text-gray-500">#</span>
