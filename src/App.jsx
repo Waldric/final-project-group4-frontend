@@ -1,3 +1,4 @@
+// src/App.jsx
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import DashboardLayout from "./pages/DashboardLayout";
@@ -9,14 +10,17 @@ import ManageDisciplinary from "./pages/teacher/ManageDisciplinary";
 import ManageAccounts from "./pages/admin/ManageAccounts";
 import ManageSubjects from "./pages/admin/ManageSubjects";
 import ProtectedRoute from "./components/ProtectedRoute";
+import StudentProfileView from "./pages/student/StudentProfileView";
+import AdminEnrollment from "./pages/admin/AdminEnrollment";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Login Page */}
         <Route path="/" element={<Login />} />
 
-        {/* Dashboard layout with nested routes */}
+        {/* Dashboard Layout with nested routes */}
         <Route path="/dashboard" element={<DashboardLayout />}>
           {/* General dashboard accessible to all authenticated users */}
           <Route index element={<DashboardIndex />} />
@@ -24,6 +28,7 @@ export default function App() {
           {/* Student routes */}
           <Route element={<ProtectedRoute requiredRole="Student" />}>
             <Route path="student/grades" element={<MyGrades />} />
+            <Route path="student/profile" element={<StudentProfileView />} />
           </Route>
 
           {/* Teacher routes */}
@@ -35,6 +40,7 @@ export default function App() {
 
           {/* Admin routes */}
           <Route element={<ProtectedRoute requiredRole="Admin" />}>
+            <Route path="admin/student-records" element={<AdminEnrollment />} />
             <Route path="admin/manage-accounts" element={<ManageAccounts />} />
             <Route path="admin/subjects" element={<ManageSubjects />} />
           </Route>

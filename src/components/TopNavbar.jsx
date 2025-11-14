@@ -29,6 +29,22 @@ const TopNavbar = ({ user, setUser }) => {
 
   const avatarSrc = (user && (user.photo || user.avatar)) || "/mie-logo.png";
 
+  // Determine profile route based on user type 
+  const getProfileRoute = () => {
+    if (!user) return "/profile";
+    const role = user.user_type?.toLowerCase();
+    switch (role) {
+      case "student":
+        return "/dashboard/student/profile";
+      case "teacher":
+        return "/dashboard/teacher/profile";
+      case "admin":
+        return "/dashboard/admin/profile";
+      default:
+        return "/profile";
+    }
+  };
+
   return (
     <header className="fixed top-0 right-0 left-54 bg-white border-b border-gray-200 z-10">
       <div className="flex items-center justify-end gap-4 px-6 py-3">
@@ -66,12 +82,12 @@ const TopNavbar = ({ user, setUser }) => {
           {/* Dropdown Menu */}
           {showDropdown && (
             <div className="absolute right-0 mt-2 w-52 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+              {/* Added: Navigate to correct profile route */}
               <button
                 className="w-full text-left px-4 py-2 text-sm text-gray-800 hover:bg-gray-50 transition-colors"
                 onClick={() => {
                   setShowDropdown(false);
-                  // navigate to profile page if you have one
-                  navigate("/profile");
+                  navigate(getProfileRoute());
                 }}
               >
                 Profile
