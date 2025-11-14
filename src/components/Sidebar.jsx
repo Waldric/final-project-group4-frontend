@@ -96,12 +96,12 @@ const Sidebar = ({ activeItem, setActiveItem, isOpen, setIsOpen, user }) => {
         label: "Disciplinary Records",
         path: "/dashboard/teacher/disciplinary-records",
       },
-      {
-        id: "teacher_schedule",
-        icon: CalendarDaysIcon,
-        label: "Schedule",
-        path: "/dashboard/teacher/schedule",
-      },
+      // {
+      //   id: "teacher_schedule",
+      //   icon: CalendarDaysIcon,
+      //   label: "Schedule",
+      //   path: "/dashboard/teacher/schedule",
+      // },
       // {
       //   id: "announcements",
       //   icon: MegaphoneIcon,

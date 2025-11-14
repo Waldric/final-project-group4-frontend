@@ -1,5 +1,6 @@
 import Header from "../components/Header";
 import { useAuth } from "../contexts/AuthContext";
+import TeacherDashboard from "./teacher/TeacherDashboard";
 
 const DashboardIndex = () => {
   const { user } = useAuth();
@@ -48,26 +49,7 @@ const DashboardIndex = () => {
 
   // Teacher Default Page
   if (user.user_type === "Teacher") {
-    return (
-      <div className="flex-1 p-4 md:p-8">
-        {/* Page Header */}
-        <Header
-          location={"Dashboard"}
-          subheader={headerContents.headerSubtext}
-        />
-
-        {/* Dashboard Content */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 min-h-96">
-          <p className="text-gray-500 text-center py-12">
-            Dashboard content for the{" "}
-            <span className="font-semibold text-[#5603AD]">
-              {user.user_type} Role
-            </span>{" "}
-            goes here...
-          </p>
-        </div>
-      </div>
-    );
+    return <TeacherDashboard />;
   }
 
   // Student Default Page
@@ -98,7 +80,10 @@ const DashboardIndex = () => {
   return (
     <div className="flex-1 p-4 md:p-8">
       {/* Page Header */}
-      <Header location={"Error!"} subheader={"Error! User type not loaded successfully"} />
+      <Header
+        location={"Error!"}
+        subheader={"Error! User type not loaded successfully"}
+      />
 
       {/* Dashboard Content */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 min-h-96">
