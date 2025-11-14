@@ -6,6 +6,7 @@ import React, { useState, useEffect } from "react";
 import Footer from "../components/Footer";
 import DashboardIndex from "./DashboardIndex";
 import { useAuth } from "../contexts/AuthContext";
+import Modals from "./Modals";
 
 function DashboardLayout() {
   const [activeItem, setActiveItem] = useState("dashboard");
@@ -30,6 +31,7 @@ function DashboardLayout() {
   
   return (
     <div className="min-h-screen bg-gray-50">
+      <Modals />
       <Sidebar
         activeItem={activeItem}
         setActiveItem={setActiveItem}
