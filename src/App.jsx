@@ -11,12 +11,14 @@ import Test from "./pages/Test";
 import DashboardLayout from "./pages/DashboardLayout";
 import DashboardIndex from "./pages/DashboardIndex";
 import StudentPageSample from "./pages/student/StudentPageSample";
+import Mygrades from "./pages/student/MyGrades";
 import TeacherPageSample from "./pages/teacher/TeacherPageSample";
 import ManageGrades from "./pages/teacher/ManageGrades";
 import ManageDisciplinary from "./pages/teacher/ManageDisciplinary";
 import AdminPageSample from "./pages/admin/AdminPageSample";
 import ManageAccounts from "./pages/admin/ManageAccounts";
 import ManageSubjects from "./pages/admin/ManageSubjects";
+import MyGrades from "./pages/student/MyGrades";
 
 export default function App() {
   return (
@@ -30,7 +32,7 @@ export default function App() {
           {/* Student pages below here */}
           <Route
             path="/dashboard/student/grades"
-            element={<StudentPageSample />}
+            element={<MyGrades />}
           />
           {/* Teacher pages below here */}
           <Route

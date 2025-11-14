@@ -16,7 +16,7 @@ const ManageDisciplinary = () => {
   const headerSubtext =
     "View and manage disciplinary incidents and sanctions.";
 
-  const { data: records, loading } = useFetch("/disciplinary");
+  const { data: records, loading } = useFetch("/disciplinary-records");
 
   const [search, setSearch] = useState("");
 
