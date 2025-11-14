@@ -11,10 +11,9 @@ const AddDisciplinaryModal = ({ onSuccess }) => {
         date: new Date().toISOString(), // Auto-set date
       });
       
-      // Close modal & refresh
       document.getElementById('add_record_modal').close();
       reset();
-      if(onSuccess) onSuccess(); // Callback to reload the list
+      if(onSuccess) onSuccess(); 
       
     } catch (error) {
       console.error("Failed to save record:", error);
@@ -53,17 +52,7 @@ const AddDisciplinaryModal = ({ onSuccess }) => {
             </div>
           </div>
 
-          {/* Row 2: Description */}
-          <div className="form-control">
-            <label className="label"><span className="label-text">Description</span></label>
-            <textarea 
-              {...register("description", { required: true })}
-              className="textarea textarea-bordered h-24" 
-              placeholder="Describe the incident details..."
-            ></textarea>
-          </div>
-
-          {/* Row 3: Sanction & Status */}
+          {/* Row 2: Sanction & Remarks */}
           <div className="flex flex-col md:flex-row gap-4">
             <div className="form-control w-full">
               <label className="label"><span className="label-text">Sanction</span></label>
@@ -74,26 +63,16 @@ const AddDisciplinaryModal = ({ onSuccess }) => {
                 className="input input-bordered w-full" 
               />
             </div>
-
+            
             <div className="form-control w-full">
-              <label className="label"><span className="label-text">Status</span></label>
-              <select {...register("status")} className="select select-bordered w-full">
-                <option value="Pending">Pending</option>
-                <option value="Resolved">Resolved</option>
-                <option value="Under Investigation">Under Investigation</option>
-              </select>
+              <label className="label"><span className="label-text">Remarks</span></label>
+              <input 
+                {...register("remarks")}
+                type="text" 
+                placeholder="Additional notes..." 
+                className="input input-bordered w-full" 
+              />
             </div>
-          </div>
-
-          {/* Row 4: Remarks */}
-          <div className="form-control">
-            <label className="label"><span className="label-text">Remarks</span></label>
-            <input 
-              {...register("remarks")}
-              type="text" 
-              placeholder="Additional notes..." 
-              className="input input-bordered w-full" 
-            />
           </div>
 
           <div className="modal-action">

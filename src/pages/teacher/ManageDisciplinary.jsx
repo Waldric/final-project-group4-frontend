@@ -5,7 +5,7 @@ import {
   MagnifyingGlassIcon, 
   PencilSquareIcon, 
   TrashIcon,
-  FunnelIcon, // This is the filter icon from your screenshot
+  FunnelIcon,
   ChevronDownIcon 
 } from "@heroicons/react/24/solid";
 import api from "../../api";
@@ -21,9 +21,7 @@ const mockData = [
       name: "Jed Medina",
       avatar: "/waguri.jpg" // Sample avatar from public folder
     },
-    description: "Trying to stab a student with a knife",
     sanction: "Death Penalty",
-    status: "Resolved",
     remarks: "Tortured to death"
   }
 ];
@@ -34,11 +32,8 @@ const ManageDisciplinary = () => {
   const headerLocation = "Disciplinary Records";
   const headerSubtext = "View your recorded disciplinary incidents, corresponding actions, and their current status.";
   
-  // Using mockData for now.
   const records = mockData;
   const loading = false;
-  // When backend is ready, swap these lines:
-  // const { data: records, loading, error } = useFetch("/disciplinary-records");
   
   const handleDelete = (id) => {
     alert(`Mock delete for ID: ${id}.`);
@@ -53,7 +48,7 @@ const ManageDisciplinary = () => {
         {/* Card Header */}
         <h2 className="text-xl font-bold text-gray-800 mb-4">Reported Records</h2>
         
-        {/* --- Toolbar: Corrected Position & Styling --- */}
+        {/* Toolbar */}
         <div className="flex justify-end items-center gap-2 mb-4">
           {/* Search Input */}
           <div className="relative w-2/5">
@@ -82,18 +77,16 @@ const ManageDisciplinary = () => {
           </div>
         </div>
 
-        {/* --- Data List: Refactored to 12-Column Grid for Alignment --- */}
+        {/* --- Data List: "Description" and "Status" REMOVED --- */}
         <div className="flex-grow">
           {/* List Header */}
           <div className="grid grid-cols-12 gap-4 px-4 py-3 border-b-2 border-gray-200">
-            <span className="col-span-1 text-sm font-medium text-gray-600">Date</span>
-            <span className="col-span-2 text-sm font-medium text-gray-600">Violation/Incident</span>
-            <span className="col-span-2 text-sm font-medium text-gray-600">Reported By</span>
-            <span className="col-span-2 text-sm font-medium text-gray-600">Description</span>
-            <span className="col-span-1 text-sm font-medium text-gray-600">Sanction</span>
-            <span className="col-span-1 text-sm font-medium text-gray-600">Status</span>
-            <span className="col-span-2 text-sm font-medium text-gray-600">Remarks</span>
-            <span className="col-span-1 text-sm font-medium text-gray-600 text-right pr-2">Actions</span>
+            <span className="col-span-2 text-sm text-gray-600">Date</span>
+            <span className="col-span-2 text-sm text-gray-600">Violation/Incident</span>
+            <span className="col-span-2 text-sm text-gray-600">Reported By</span>
+            <span className="col-span-2 text-sm text-gray-600">Sanction</span>
+            <span className="col-span-2 text-sm text-gray-600">Remarks</span>
+            <span className="col-span-1 text-sm text-gray-600 text-right pr-2">Actions</span>
           </div>
 
           {/* List Body */}
@@ -102,7 +95,7 @@ const ManageDisciplinary = () => {
               records.map((record) => (
                 <div key={record._id} className="grid grid-cols-12 gap-4 items-center px-4 py-4 border-b border-gray-200 hover:bg-gray-50">
                   {/* Date */}
-                  <div className="col-span-1 text-sm text-gray-600">
+                  <div className="col-span-2 text-sm text-gray-600">
                     {new Date(record.date).toLocaleDateString('en-US', { 
                       month: 'long', 
                       day: 'numeric', 
@@ -122,26 +115,16 @@ const ManageDisciplinary = () => {
                     </div>
                     <span>{record.reportedBy.name}</span>
                   </div>
-                  {/* Description */}
-                  <div className="col-span-2 text-sm text-gray-600">
-                    {record.description}
-                  </div>
                   {/* Sanction */}
-                  <div className="col-span-1 text-sm text-gray-600">
+                  <div className="col-span-2 text-sm text-gray-600">
                     {record.sanction}
-                  </div>
-                  {/* Status */}
-                  <div className="col-span-1 text-sm">
-                    <span className="font-medium text-green-600">
-                      {record.status}
-                    </span>
                   </div>
                   {/* Remarks */}
                   <div className="col-span-2 text-sm text-gray-600">
                     {record.remarks}
                   </div>
                   {/* Actions */}
-                  <div className="col-span-1 text-right flex justify-end gap-2">
+                  <div className="col-span-1 text-right flex justify-end gap-0">
                     <button className="btn btn-ghost btn-xs">
                       <PencilSquareIcon className="w-5 h-5 text-gray-900" />
                     </button>
