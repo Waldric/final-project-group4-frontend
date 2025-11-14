@@ -12,6 +12,7 @@ import DashboardLayout from "./pages/DashboardLayout";
 import DashboardIndex from "./pages/DashboardIndex";
 import StudentPageSample from "./pages/student/StudentPageSample";
 import Mygrades from "./pages/student/MyGrades";
+import MyDisciplinaryRecords from "./pages/student/MyDisciplinaryRecords";
 import TeacherPageSample from "./pages/teacher/TeacherPageSample";
 import ManageGrades from "./pages/teacher/ManageGrades";
 import ManageDisciplinary from "./pages/teacher/ManageDisciplinary";
@@ -33,6 +34,10 @@ export default function App() {
           <Route
             path="/dashboard/student/grades"
             element={<MyGrades />}
+          />
+          <Route
+            path="/dashboard/student/records"
+            element={<MyDisciplinaryRecords />}
           />
           {/* Teacher pages below here */}
           <Route
