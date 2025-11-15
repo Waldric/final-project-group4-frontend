@@ -1,13 +1,6 @@
 // src/App.jsx
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  Navigate,
-  useLocation,
-} from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
-import Test from "./pages/Test";
 import DashboardLayout from "./pages/DashboardLayout";
 import DashboardIndex from "./pages/DashboardIndex";
 import StudentProfileView from "./pages/student/StudentProfileView";
@@ -19,34 +12,31 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+
+        {/* Login Page */}
         <Route path="/" element={<Login />} />
 
-        {/* Dashboard layout with nested routes */}
+        {/* Dashboard Layout with nested routes */}
         <Route path="/dashboard" element={<DashboardLayout />}>
-          <Route index element={<DashboardIndex />} /> {/* /dashboard */}
-          {/* Student pages below here */}
-          <Route
-            path="/dashboard/student/profile"
-            element={<StudentProfileView />}
-          />
-          {/* Teacher pages below here */}
-          <Route
-            path="/dashboard/teacher/classes"
-            element={<TeacherPageSample />}
-          />
-          {/* Admin pages below here*/}
-          <Route
-            path="/dashboard/admin/student-records"
-            element={<AdminEnrollment />}
-          />
-          <Route
-            path="/dashboard/admin/subjects"
-            element={<ManageSubjects />}
-          />
+
+          {/* Default dashboard route */}
+          <Route index element={<DashboardIndex />} />
+
+          {/* Student pages */}
+          <Route path="student/profile" element={<StudentProfileView />} />
+
+          {/* Teacher pages */}
+          <Route path="teacher/classes" element={<TeacherPageSample />} />
+
+          {/* Admin pages */}
+          <Route path="admin/student-records" element={<AdminEnrollment />} />
+          <Route path="admin/subjects" element={<ManageSubjects />} />
+
         </Route>
 
         {/* Catch-all redirect */}
         <Route path="*" element={<Navigate to="/" replace />} />
+
       </Routes>
     </BrowserRouter>
   );

@@ -13,38 +13,37 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const { setUser } = useAuth();
+  const USE_FAKE_LOGIN = true;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
     try {
-      const api = axios.create({
-        baseURL: import.meta.env.VITE_API_BASE_URL,
-      });
-      const res = await api.post("/auth/login", {
+      const res = await axios.post("http://localhost:5000/api/auth/login", {
         email,
         password,
       });
-      const user = res.data.user;
+  const user = res.data.user;
 
-      // persist user
-      try {
-        sessionStorage.setItem("mie_user", JSON.stringify(user));
-        setUser(user);
-      } catch (err) {
-        /* ignore storage errors */
-      }
+  // persist user
+  try {
+    sessionStorage.setItem("mie_user", JSON.stringify(user));
+    setUser(user);
 
-      navigate("/dashboard", { state: { user } }); // NOTE: Changed route so it goes to dashboard instead of test
-    } catch (err) {
-      console.error("login error:", err);
-      if (err.response && err.response.status === 404)
-        setError(err.response.data.message || "Not found");
-      else if (err.response && err.response.status === 400)
-        setError(err.response.data.message || "Bad request");
-      else setError("Server error. Check backend.");
-    }
+  } catch (err) {
+    /* ignore storage errors */
+  }
+
+  navigate("/dashboard", { state: { user } });
+} catch (err) {
+  console.error("login error:", err);
+  if (err.response && err.response.status === 404)
+    setError(err.response.data.message || "Not found");
+  else if (err.response && err.response.status === 400)
+    setError(err.response.data.message || "Bad request");
+  else setError("Server error. Check backend.");
+}
   };
 
   return (
