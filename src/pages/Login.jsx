@@ -4,6 +4,7 @@ import axios from "axios";
 import mieLogo from "/mie-logo.png";
 import mieLeft from "/login-leftside.jpg";
 import { useAuth } from "../contexts/AuthContext";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -63,14 +64,18 @@ const Login = () => {
           <img
             src={mieLogo}
             alt="Medina Institute of Excellence Logo"
-            className="mx-auto mb-2 w-40 -mt-4" // 👈 made it bigger and moved up
+            className="mx-auto mb-2 w-80 -mt-4" // WJG: made it bigger and moved up
           />
           <h1 className="text-3xl font-bold mb-2">Welcome!</h1>
           <p className="mb-6 text-gray-500 text-sm">
             Enter your email and password to access your account.
           </p>
 
-          <form onSubmit={handleSubmit} method="post" className="space-y-4">
+          <form
+            onSubmit={handleSubmit}
+            method="post"
+            className="space-y-4 text-left"
+          >
             {/* Email Field */}
             <div>
               <label className="label">
@@ -97,7 +102,7 @@ const Login = () => {
                   name="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
-                  className="input input-bordered w-full pr-12" // 👈 space for icon
+                  className="input input-bordered w-full pr-12" // space for icon
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -108,7 +113,14 @@ const Login = () => {
                   className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700 focus:outline-none"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
-                  <span className="text-lg">{showPassword ? "🙈" : "👁️"}</span>
+                  <span className="text-lg">
+                    {" "}
+                    {showPassword ? (
+                      <EyeSlashIcon className="w-5 h-5" />
+                    ) : (
+                      <EyeIcon className="w-5 h-5" />
+                    )}
+                  </span>
                 </button>
               </div>
             </div>

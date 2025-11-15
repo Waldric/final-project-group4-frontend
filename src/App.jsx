@@ -10,10 +10,10 @@ import Login from "./pages/Login";
 import Test from "./pages/Test";
 import DashboardLayout from "./pages/DashboardLayout";
 import DashboardIndex from "./pages/DashboardIndex";
-import StudentPageSample from "./pages/student/StudentPageSample";
+import StudentProfileView from "./pages/student/StudentProfileView";
 import TeacherPageSample from "./pages/teacher/TeacherPageSample";
-import AdminPageSample from "./pages/admin/AdminPageSample";
 import ManageSubjects from "./pages/admin/ManageSubjects";
+import AdminEnrollment from "./pages/admin/AdminEnrollment";
 
 export default function App() {
   return (
@@ -26,8 +26,8 @@ export default function App() {
           <Route index element={<DashboardIndex />} /> {/* /dashboard */}
           {/* Student pages below here */}
           <Route
-            path="/dashboard/student/grades"
-            element={<StudentPageSample />}
+            path="/dashboard/student/profile"
+            element={<StudentProfileView />}
           />
           {/* Teacher pages below here */}
           <Route
@@ -36,8 +36,8 @@ export default function App() {
           />
           {/* Admin pages below here*/}
           <Route
-            path="/dashboard/admin/manage-accounts"
-            element={<AdminPageSample />}
+            path="/dashboard/admin/student-records"
+            element={<AdminEnrollment />}
           />
           <Route
             path="/dashboard/admin/subjects"
