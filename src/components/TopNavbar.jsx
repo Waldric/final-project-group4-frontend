@@ -21,7 +21,9 @@ const TopNavbar = ({ user, setUser }) => {
 
   const displayName =
     user && (user.firstname || user.lastname)
-      ? `${user.firstname || ""}${user.firstname && user.lastname ? ", " : ""}${user.lastname || ""}`.replace(/^, |, $/, "")
+      ? `${user.firstname || ""}${user.firstname && user.lastname ? ", " : ""}${
+          user.lastname || ""
+        }`.replace(/^, |, $/, "")
       : "No Profile";
 
   // If backend uses `user_type` show that. Fallback to 'Student' or '—'
@@ -29,7 +31,7 @@ const TopNavbar = ({ user, setUser }) => {
 
   const avatarSrc = (user && (user.photo || user.avatar)) || "/mie-logo.png";
 
-  // Determine profile route based on user type 
+  // Determine profile route based on user type
   const getProfileRoute = () => {
     if (!user) return "/profile";
     const role = user.user_type?.toLowerCase();

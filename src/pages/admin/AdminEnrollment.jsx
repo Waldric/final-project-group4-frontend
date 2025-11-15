@@ -31,7 +31,7 @@ export default function AdminEnrollment() {
   const [selectedIds, setSelectedIds] = useState([]);
 
   const [filters, setFilters] = useState({
-    dept: [], 
+    dept: [],
     sem: "all",
     search: "",
   });
@@ -39,7 +39,6 @@ export default function AdminEnrollment() {
   const [sort, setSort] = useState({ field: "all", order: "asc" });
   const [sortOpen, setSortOpen] = useState(false);
   const sortRef = useRef(null);
-
 
   useEffect(() => {
     api
@@ -161,7 +160,6 @@ export default function AdminEnrollment() {
       />
 
       <div className="bg-white shadow-md rounded-2xl p-6 mt-4">
-
         {/* ---------------- Department Toggle Row ---------------- */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex gap-3 items-center bg-gray-50 px-4 py-2 rounded-full">
@@ -195,13 +193,10 @@ export default function AdminEnrollment() {
 
         {/* ---------------- Search + Sort + Add ---------------- */}
         <div className="flex items-center justify-between mb-3">
-
           {/* Semester filter */}
           <select
             value={filters.sem}
-            onChange={(e) =>
-              setFilters({ ...filters, sem: e.target.value })
-            }
+            onChange={(e) => setFilters({ ...filters, sem: e.target.value })}
             className="select select-sm select-bordered"
           >
             <option value="all">All Semesters</option>
@@ -211,7 +206,6 @@ export default function AdminEnrollment() {
 
           {/* Right side */}
           <div className="flex items-center gap-3">
-
             {/* Search */}
             <input
               type="text"

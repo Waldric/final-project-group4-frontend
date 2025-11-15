@@ -90,10 +90,12 @@ const StudentProfileView = () => {
               <span className="font-medium">Program:</span> {student.course}
             </p>
             <p>
-              <span className="font-medium">Department:</span> {student.department}
+              <span className="font-medium">Department:</span>{" "}
+              {student.department}
             </p>
             <p>
-              <span className="font-medium">Year Level:</span> {student.year_level}
+              <span className="font-medium">Year Level:</span>{" "}
+              {student.year_level}
             </p>
           </div>
         </div>
@@ -103,8 +105,14 @@ const StudentProfileView = () => {
           {/* PERSONAL DETAILS */}
           <Card title="Personal Details" onEdit={() => setShowEdit(true)}>
             <Grid>
-              <Input label="Full Name" value={`${user.firstname} ${user.lastname}`} />
-              <Input label="Birthdate" value={formatBirthday(student.birthday)} />
+              <Input
+                label="Full Name"
+                value={`${user.firstname} ${user.lastname}`}
+              />
+              <Input
+                label="Birthdate"
+                value={formatBirthday(student.birthday)}
+              />
               <Input label="Phone Number" value={student.phone} />
               <Input label="Address" value={student.address} />
               <Input label="Mother" value={student.mother} />
