@@ -57,12 +57,12 @@ const Sidebar = ({ activeItem, setActiveItem, isOpen, setIsOpen, user }) => {
       //   label: "Payment History",
       //   path: "/dashboard/student/payment-history",
       // },
-      // {
-      //   id: "records",
-      //   icon: DocumentTextIcon,
-      //   label: "My Records",
-      //   path: "/dashboard/student/records",
-      // },
+      {
+        id: "records",
+        icon: DocumentTextIcon,
+        label: "My Records",
+        path: "/dashboard/student/records",
+      },
       // {
       //   id: "announcements",
       //   icon: MegaphoneIcon,
