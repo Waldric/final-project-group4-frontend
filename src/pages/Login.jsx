@@ -53,7 +53,7 @@ const Login = () => {
         <img
           src={mieLeft}
           alt="MIE Background"
-          className="object-cover w-full h-full rounded-l-2xl"
+          className="object-cover w-full h-full"
         />
       </div>
 
