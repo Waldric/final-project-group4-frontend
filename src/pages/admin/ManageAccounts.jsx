@@ -14,7 +14,7 @@ const ManageAccounts = () => {
   const [editMode, setEditMode] = useState(false);
   const [deleteMode, setDeleteMode] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterType, setFilterType] = useState("");
+  const [filterType, setFilterType] = useState([]); // Array for multi-select
   const [filterDept, setFilterDept] = useState("");
   const [sortOption, setSortOption] = useState("");
 
@@ -36,7 +36,7 @@ const ManageAccounts = () => {
     try {
       const res = await api.get("/accounts");
       setAccounts(res.data);
-      setFilteredAccounts(res.data);
+      setFilteredAccounts(res.data); // Initialize with all accounts
     } catch (err) {
       console.error("Error fetching accounts:", err);
     } finally {
@@ -48,23 +48,42 @@ const ManageAccounts = () => {
     fetchAccounts();
   }, []);
 
-  // FILTERING + SORTING + SEARCH
+  // FILTERING + SORTING + SEARCH (Updated with debugging)
   useEffect(() => {
+    console.log("FilterType updated:", filterType); // Debug log
     let filtered = [...accounts];
 
-    if (filterType) filtered = filtered.filter((a) => a.user_type === filterType);
-    if (filterDept) filtered = filtered.filter((a) => a.department === filterDept);
-    if (searchTerm)
+    // Filter by user_type (multi-select)
+    if (filterType.length > 0) {
+      filtered = filtered.filter((a) => filterType.includes(a.user_type));
+      console.log("Filtered by user_type:", filtered); // Debug log
+    } else {
+      console.log("No user_type filter, using all accounts"); // Debug log
+    }
+
+    // Filter by department
+    if (filterDept) {
+      filtered = filtered.filter((a) => a.department === filterDept);
+      console.log("Filtered by department:", filtered); // Debug log
+    }
+
+    // Filter by search term
+    if (searchTerm) {
       filtered = filtered.filter((a) =>
         `${a.firstname} ${a.lastname}`.toLowerCase().includes(searchTerm.toLowerCase())
       );
+      console.log("Filtered by search term:", filtered); // Debug log
+    }
 
-    if (sortOption === "Account ID")
+    // Sort by option
+    if (sortOption === "Account ID") {
       filtered.sort((a, b) => a.account_id.localeCompare(b.account_id));
-    else if (sortOption === "Name")
+    } else if (sortOption === "Name") {
       filtered.sort((a, b) => a.firstname.localeCompare(b.firstname));
+    }
 
     setFilteredAccounts(filtered);
+    console.log("Final filteredAccounts:", filteredAccounts); // Debug log
   }, [filterType, filterDept, searchTerm, sortOption, accounts]);
 
   const handleChange = (e) => {
@@ -72,7 +91,6 @@ const ManageAccounts = () => {
   };
 
   const resetForm = () => {
-    console.log("Resetting form state");
     setForm(initialFormState);
     setEditMode(false);
   };
