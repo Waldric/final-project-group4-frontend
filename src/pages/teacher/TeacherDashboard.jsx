@@ -151,7 +151,7 @@ const TeacherDashboard = () => {
               <div className="flex flex-col *:my-0.5">
                 <div className="avatar flex w-full justify-center">
                   <div className="w-24 rounded-full">
-                    <img src="https://img.daisyui.com/images/profile/demo/yellingcat@192.webp" />
+                    <img src={user.photo} />
                   </div>
                 </div>
                 <span className="font-bold text-2xl">

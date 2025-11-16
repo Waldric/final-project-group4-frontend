@@ -9,7 +9,7 @@ import { useAuth } from "../contexts/AuthContext";
 import Modals from "./Modals";
 
 function DashboardLayout() {
-  const [activeItem, setActiveItem] = useState("/dashboard");
+  const [activeItem, setActiveItem] = useState("dashboard");
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const { user, setUser } = useAuth();

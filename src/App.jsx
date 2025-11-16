@@ -20,6 +20,7 @@ import AdminPageSample from "./pages/admin/AdminPageSample";
 import ManageAccounts from "./pages/admin/ManageAccounts";
 import ManageSubjects from "./pages/admin/ManageSubjects";
 import MyGrades from "./pages/student/MyGrades";
+import TeacherClasses from "./pages/teacher/TeacherClasses";
 
 export default function App() {
   return (
@@ -42,7 +43,7 @@ export default function App() {
           {/* Teacher pages below here */}
           <Route
             path="/dashboard/teacher/classes"
-            element={<TeacherPageSample />}
+            element={<TeacherClasses />}
           />
           <Route
             path="/dashboard/teacher/grades"
@@ -55,6 +56,10 @@ export default function App() {
           {/* Admin pages below here*/}
           <Route
             path="/dashboard/admin/manage-accounts"
+            element={<ManageAccounts />}
+          />
+          <Route
+            path="/dashboard/admin/teacher-recordss"
             element={<ManageAccounts />}
           />
           <Route
