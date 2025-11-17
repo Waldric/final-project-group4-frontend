@@ -1,25 +1,43 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Header from "../../components/Header";
-import { PlusIcon, MagnifyingGlassIcon, PencilSquareIcon, TrashIcon, FunnelIcon, ChevronDownIcon,} from "@heroicons/react/24/solid";
+import {
+  PlusIcon,
+  MagnifyingGlassIcon,
+  PencilSquareIcon,
+  TrashIcon,
+  ChevronDownIcon,
+} from "@heroicons/react/24/solid";
 import api from "../../api";
+
 import AddDisciplinaryModal from "../../components/AddDisciplinaryModal";
+import EditDisciplinaryModal from "../../components/EditDisciplinaryModal";
+import DeleteDisciplinaryModal from "../../components/DeleteDisciplinaryModal";
 
 const ManageDisciplinary = () => {
   const headerLocation = "Disciplinary Records";
   const headerSubtext =
-    "View your recorded disciplinary incidents, corresponding actions, and their current status.";
+    "View recorded disciplinary incidents, actions taken, and current status.";
 
-  // STATE MANAGEMENT
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const [search, setSearch] = useState("");
+  const [sortOrder, setSortOrder] = useState("newest");
+
+  // Edit/Delete States
+  const [editingRecord, setEditingRecord] = useState(null);
+  const [deletingRecordId, setDeletingRecordId] = useState(null);
 
   const fetchRecords = async () => {
     try {
+      setLoading(true);
       const res = await api.get("/disciplinary");
       setRecords(res.data.data || []);
+      setError(null);
     } catch (err) {
-      console.error("Failed to fetch disciplinary records:", err);
+      console.error(err);
+      setError("Failed to load records.");
     } finally {
       setLoading(false);
     }
@@ -29,193 +47,198 @@ const ManageDisciplinary = () => {
     fetchRecords();
   }, []);
 
-  // DELETE RECORD
-  const handleDelete = async (id) => {
-    if (!confirm("Are you sure you want to delete this record?")) return;
-
-    try {
-      await api.delete("/disciplinary", {
-        data: { ids: [id] },
-      });
-      fetchRecords();
-    } catch (error) {
-      console.error("Delete error:", error);
-      alert("Failed to delete the record.");
-    }
-  };
-
-  // FILTERING
-  const filteredRecords = records.filter((record) => {
+  /** ---------------------------------------------------------------
+   *                 FILTER → THEN SORT THE FILTERED
+   ----------------------------------------------------------------*/
+  const processedRecords = useMemo(() => {
     const term = search.toLowerCase();
-    return (
-      record.violation?.toLowerCase().includes(term) ||
-      record.remarks?.toLowerCase().includes(term) ||
-      record.teachers_id?.firstname
-        ?.toLowerCase()
-        .includes(term)
-    );
-  });
 
-  
-  // RENDER
+    let filtered = records.filter((r) => {
+      return (
+        r.violation?.toLowerCase().includes(term) ||
+        r.remarks?.toLowerCase().includes(term) ||
+        r.teachers_id?.firstname?.toLowerCase().includes(term) ||
+        r.teachers_id?.lastname?.toLowerCase().includes(term)
+      );
+    });
+
+    filtered.sort((a, b) => {
+      const da = new Date(a.date || 0);
+      const db = new Date(b.date || 0);
+
+      return sortOrder === "newest" ? db - da : da - db;
+    });
+
+    return filtered;
+  }, [records, search, sortOrder]);
+
+  /** ---------------------------------------------------------------
+   *                           UI STATES
+   ----------------------------------------------------------------*/
   if (loading) {
     return (
-      <div className="flex-1 p-4 md:p-8">
-        <Header location={headerLocation} subheader={headerSubtext} />
-        <div className="flex justify-center py-24">
-          <span className="loading loading-dots loading-lg"></span>
-        </div>
+      <div className="flex-1 p-10 flex justify-center items-center">
+        <span className="loading loading-dots loading-lg"></span>
       </div>
     );
   }
 
+  if (error) {
+    return (
+      <div className="flex-1 p-10">
+        <Header location={headerLocation} subheader={headerSubtext} />
+        <div className="text-center text-red-500">{error}</div>
+      </div>
+    );
+  }
+
+  /** ---------------------------------------------------------------
+   *                       MAIN UI
+   ----------------------------------------------------------------*/
   return (
     <div className="flex-1 p-4 md:p-8">
-      {/* Header */}
       <Header location={headerLocation} subheader={headerSubtext} />
 
-      {/* Card Container */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 min-h-[600px] flex flex-col">
-        
-        <h2 className="text-xl font-bold text-gray-800 mb-4">Reported Records</h2>
+      <div className="bg-white rounded-xl shadow-md border p-6">
+        <h2 className="text-2xl font-semibold mb-5">Reported Records</h2>
 
-        {/* Toolbar */}
-        <div className="flex justify-between items-center mb-4">
+        {/* ----------------------- Top Toolbar ----------------------- */}
+        <div className="flex justify-between items-center mb-6">
 
-          {/* Search */}
+          {/* SEARCH */}
           <div className="relative w-1/3">
             <input
               type="text"
-              placeholder="Search record..."
-              className="input input-bordered rounded-full w-full pl-10"
+              placeholder="Search records..."
+              className="input input-bordered rounded-full w-full pl-10 shadow-sm"
+              value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
             <MagnifyingGlassIcon className="w-5 h-5 text-gray-400 absolute left-3 top-3" />
           </div>
 
-          {/* Sort + Add */}
-          <div className="flex items-center gap-2">
-
-            <button className="btn btn-ghost btn-circle">
-              <FunnelIcon className="w-5 h-5 text-gray-700" />
+          {/* SORT DROPDOWN */}
+          <div className="dropdown dropdown-end">
+            <button
+              tabIndex={0}
+              className="btn btn-outline rounded-lg flex items-center gap-2 shadow-sm"
+            >
+              Sort by Date
+              <ChevronDownIcon className="w-4 h-4" />
             </button>
 
-            <div className="dropdown dropdown-end">
-              <div tabIndex={0} className="btn btn-outline border-gray-300 rounded-lg flex items-center gap-2 w-48">
-                <span className="font-normal text-gray-600">Sort by Date</span>
-                <ChevronDownIcon className="w-4 h-4" />
-              </div>
-              <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-48">
-                <li><a>Newest First</a></li>
-                <li><a>Oldest First</a></li>
-              </ul>
-            </div>
-
+            <ul tabIndex={0} className="dropdown-content menu bg-white rounded-xl shadow-lg p-2 w-52">
+              <li>
+                <button
+                  className={`hover:bg-gray-100 ${sortOrder === "newest" ? "font-bold" : ""}`}
+                  onClick={() => setSortOrder("newest")}
+                >
+                  Newest First
+                </button>
+              </li>
+              <li>
+                <button
+                  className={`hover:bg-gray-100 ${sortOrder === "oldest" ? "font-bold" : ""}`}
+                  onClick={() => setSortOrder("oldest")}
+                >
+                  Oldest First
+                </button>
+              </li>
+            </ul>
           </div>
 
+          {/* ADD */}
+          <button
+            className="btn bg-[#F7B801] hover:bg-[#d99a00] text-white rounded-lg gap-2 shadow-md"
+            onClick={() => document.getElementById("add_record_modal").showModal()}
+          >
+            <PlusIcon className="w-5 h-5" />
+            Add Record
+          </button>
         </div>
 
-        {/* Table Header */}
-        <div className="grid grid-cols-12 gap-4 px-4 py-3 border-b-2 border-gray-200">
-          <span className="col-span-2 text-sm text-gray-600">Date</span>
-          <span className="col-span-2 text-sm text-gray-600">Violation</span>
-          <span className="col-span-2 text-sm text-gray-600">Reported By</span>
-          <span className="col-span-2 text-sm text-gray-600">Sanction</span>
-          <span className="col-span-2 text-sm text-gray-600">Remarks</span>
-          <span className="col-span-1 text-sm text-gray-600 text-right pr-2">Actions</span>
+        {/* ----------------------- Table Header ----------------------- */}
+        <div className="grid grid-cols-12 py-3 border-b font-semibold text-gray-600 text-sm">
+          <span className="col-span-2">Date</span>
+          <span className="col-span-2">Violation</span>
+          <span className="col-span-2">Reported By</span>
+          <span className="col-span-2">Sanction</span>
+          <span className="col-span-2">Remarks</span>
+          <span className="col-span-2 text-right">Actions</span>
         </div>
 
-        {/* Records List */}
-        <div className="space-y-2">
-          {filteredRecords.length > 0 ? (
-            filteredRecords.map((record) => (
+        {/* ------------------------- ROWS ------------------------- */}
+        <div className="divide-y">
+          {processedRecords.length > 0 ? (
+            processedRecords.map((r) => (
               <div
-                key={record._id}
-                className="grid grid-cols-12 gap-4 items-center px-4 py-4 border-b border-gray-200 hover:bg-gray-50"
+                key={r._id}
+                className="grid grid-cols-12 py-4 items-center hover:bg-gray-50 transition duration-150"
               >
-                {/* Date */}
-                <div className="col-span-2 text-sm text-gray-600">
-                  {new Date(record.date).toLocaleDateString("en-US", {
+                <span className="col-span-2">
+                  {new Date(r.date).toLocaleDateString("en-US", {
                     month: "long",
                     day: "numeric",
                     year: "numeric",
                   })}
-                </div>
+                </span>
 
-                {/* Violation */}
-                <div className="col-span-2 text-sm text-gray-600">
-                  {record.violation}
-                </div>
+                <span className="col-span-2">{r.violation}</span>
 
-                {/* Reported By */}
-                <div className="col-span-2 text-sm text-gray-600 flex items-center gap-2">
+                {/* Teacher */}
+                <div className="col-span-2 flex items-center gap-2">
                   <div className="avatar">
-                    <div className="w-6 rounded-full">
+                    <div className="w-7 h-7 rounded-full">
                       <img
-                        src={
-                          record.teachers_id?.avatar ||
-                          "/default-avatar.png"
-                        }
-                        alt="pfp"
+                        src={r.teachers_id?.photo || "/default-avatar.png"}
+                        className="object-cover"
                       />
                     </div>
                   </div>
-                  <span>
-                    {record.teachers_id
-                      ? `${record.teachers_id.firstname} ${record.teachers_id.lastname}`
-                      : "Unknown Teacher"}
-                  </span>
+                  {r.teachers_id?.firstname
+                    ? `${r.teachers_id.firstname} ${r.teachers_id.lastname}`
+                    : "Unknown Teacher"}
                 </div>
 
-                {/* Sanction */}
-                <div className="col-span-2 text-sm text-gray-600">
-                  {record.sanction}
-                </div>
+                <span className="col-span-2">{r.sanction}</span>
+                <span className="col-span-2">{r.remarks}</span>
 
-                {/* Remarks */}
-                <div className="col-span-2 text-sm text-gray-600">
-                  {record.remarks}
-                </div>
-
-                {/* Actions */}
-                <div className="col-span-1 flex justify-end gap-1">
-                  <button className="btn btn-ghost btn-xs">
-                    <PencilSquareIcon className="w-5 h-5 text-gray-900" />
+                {/* ACTIONS */}
+                <div className="col-span-2 flex justify-end gap-2">
+                  <button
+                    className="btn btn-ghost btn-xs"
+                    onClick={() => setEditingRecord(r)}
+                  >
+                    <PencilSquareIcon className="w-5 h-5" />
                   </button>
 
                   <button
                     className="btn btn-ghost btn-xs"
-                    onClick={() => handleDelete(record._id)}
+                    onClick={() => setDeletingRecordId(r._id)}
                   >
                     <TrashIcon className="w-5 h-5 text-red-500" />
                   </button>
                 </div>
-
               </div>
             ))
           ) : (
-            <div className="text-center col-span-12 py-12 text-gray-500">
-              No disciplinary records found.
-            </div>
+            <div className="py-10 text-center text-gray-500">No matching records found.</div>
           )}
         </div>
-
-        {/* Add Button */}
-        <div className="flex justify-end mt-6">
-          <button
-            className="btn bg-[#F7B801] hover:bg-[#e5aa00] text-white border-none gap-2 rounded-lg"
-            onClick={() =>
-              document.getElementById("add_record_modal").showModal()
-            }
-          >
-            <PlusIcon className="w-5 h-5" />
-            Add New Record
-          </button>
-        </div>
-
       </div>
 
+      {/* ------------------------- Modals ------------------------- */}
       <AddDisciplinaryModal onSuccess={fetchRecords} />
+      <EditDisciplinaryModal
+        record={editingRecord}
+        onClose={() => setEditingRecord(null)}
+        onSuccess={fetchRecords}
+      />
+      <DeleteDisciplinaryModal
+        id={deletingRecordId}
+        onClose={() => setDeletingRecordId(null)}
+        onSuccess={fetchRecords}
+      />
     </div>
   );
 };

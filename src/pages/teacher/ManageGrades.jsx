@@ -1,28 +1,96 @@
+// src/pages/teacher/ManageGrades.jsx
 import Header from "../../components/Header";
 import { useAuth } from "../../contexts/AuthContext";
 import { useFetch } from "../../hooks/useFetch";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ClassCard from "../../components/ClassCard"; 
+import {
+  FunnelIcon,
+  MagnifyingGlassIcon,
+  ChevronDownIcon,
+} from "@heroicons/react/24/solid";
+import ClassCard from "../../components/ClassCard";
 
 const ManageGrades = () => {
   const headerLocation = "Student Grades";
-  const headerSubtext = "View and manage your assigned classes, student lists, and academic records for the selected semester.";
-  
+  const headerSubtext =
+    "View and manage your assigned classes, student lists, and academic records for the selected semester.";
+
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  // Fetch the account data.
-  const { data: teacherData, loading, error } = useFetch(`/accounts/${user.account_id}`);
+  // ⬇️ IMPORTANT: fetch TEACHER by account_ref, not /accounts/:account_id
+  // Backend: GET /api/teachers/account/:accountId  (adjust base path if needed)
+  const {
+    data: teacherData,
+    loading,
+    error,
+  } = useFetch(`/teachers/account/${user._id}`);
 
-  // We will get the list of classes from the fetched account data
-  const classes = teacherData?.subjects || [];
+  // Teacher's departments and class list
+  const departments = teacherData?.departments ?? [];
+  const classes = teacherData?.subjects ?? [];
 
-  // Handle click on a class card
+  // UI state
+  const [activeDept, setActiveDept] = useState<string | "All">("All");
+  const [search, setSearch] = useState("");
+  const [sortOption, setSortOption] = useState("code-asc"); // "code-asc" | "code-desc" | "name-asc" | "name-desc"
+
+  // ------------------- FILTER + SORT (only filtered results) -------------------
+  const visibleClasses = useMemo(() => {
+    if (!classes || classes.length === 0) return [];
+
+    const term = search.trim().toLowerCase();
+
+    let result = classes;
+
+    // filter by department (subject.department)
+    if (activeDept !== "All") {
+      result = result.filter(
+        (cls) =>
+          cls.subject_id?.department &&
+          cls.subject_id.department === activeDept
+      );
+    }
+
+    // search by subject code or name
+    if (term) {
+      result = result.filter((cls) => {
+        const code = cls.subject_id?.code?.toLowerCase() ?? "";
+        const name = cls.subject_id?.subject_name?.toLowerCase() ?? "";
+        return code.includes(term) || name.includes(term);
+      });
+    }
+
+    // sort only AFTER filtering
+    result = [...result].sort((a, b) => {
+      const codeA = a.subject_id?.code ?? "";
+      const codeB = b.subject_id?.code ?? "";
+      const nameA = a.subject_id?.subject_name ?? "";
+      const nameB = b.subject_id?.subject_name ?? "";
+
+      switch (sortOption) {
+        case "code-desc":
+          return codeB.localeCompare(codeA);
+        case "name-asc":
+          return nameA.localeCompare(nameB);
+        case "name-desc":
+          return nameB.localeCompare(nameA);
+        case "code-asc":
+        default:
+          return codeA.localeCompare(codeB);
+      }
+    });
+
+    return result;
+  }, [classes, activeDept, search, sortOption]);
+
+  // Navigate to detailed grade page for that class
   const handleClassClick = (classId) => {
     navigate(`/dashboard/teacher/grades/${classId}`);
   };
 
-  // Render loading state
+  // ------------------- LOADING / ERROR -------------------
   if (loading) {
     return (
       <div className="flex-1 p-4 md:p-8">
@@ -34,68 +102,135 @@ const ManageGrades = () => {
     );
   }
 
-  // Render error state
   if (error) {
     return (
       <div className="flex-1 p-4 md:p-8">
         <Header location={headerLocation} subheader={headerSubtext} />
         <div className="text-center py-48">
-          <p className="text-2xl font-semibold text-red-500">Error loading data</p>
-          <p className="text-gray-500">{error.message}</p>
+          <p className="text-2xl font-semibold text-red-500">
+            Error loading data
+          </p>
+          <p className="text-gray-500">
+            {error.message || "Request failed. Check the teacher endpoint."}
+          </p>
         </div>
       </div>
     );
   }
 
-  // Render the main content
+  // ------------------- MAIN UI -------------------
   return (
-    <div className="flex-1 p-4 md:p-8">
+    <div className="flex-1 p-4 md:p-8 bg-[#F5F5FB]">
       {/* Page Header */}
       <Header location={headerLocation} subheader={headerSubtext} />
-      
-      {/* Dashboard Content matching Figma */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 min-h-96">
-        
-        {/* Dept. Tabs and Filters */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
-          {/* Tabs */}
-          <div role="tablist" className="tabs tabs-boxed bg-gray-100">
-            <a role="tab" className="tab tab-active bg-[#5603AD] text-white">CITE</a>
-            <a role="tab" className="tab">CBEAM</a>
-            <a role="tab" className="tab">CEAS</a>
-            <a role="tab" className="tab">CON</a>
+
+      {/* White card container like Figma */}
+      <div className="mt-4 bg-white rounded-2xl shadow-sm border border-gray-100 p-5 md:p-6">
+        {/* Top row: dept tabs + filters */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+          {/* Dept Tabs */}
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setActiveDept("All")}
+              className={`px-4 py-1.5 text-sm rounded-full border transition ${
+                activeDept === "All"
+                  ? "bg-[#5603AD] text-white border-[#5603AD]"
+                  : "bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200"
+              }`}
+            >
+              All
+            </button>
+            {departments.map((dept) => (
+              <button
+                key={dept}
+                onClick={() => setActiveDept(dept)}
+                className={`px-4 py-1.5 text-sm rounded-full border transition ${
+                  activeDept === dept
+                    ? "bg-[#5603AD] text-white border-[#5603AD]"
+                    : "bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200"
+                }`}
+              >
+                {dept}
+              </button>
+            ))}
           </div>
-          
-          {/* Filters */}
-          <div className="flex gap-4">
-            <input 
-              type="text" 
-              placeholder="Search..." 
-              className="input input-bordered w-full max-w-xs" 
-            />
-            <select className="select select-bordered">
-              <option disabled selected>Sort by Code A-Z</option>
-              <option>Sort by Code Z-A</option>
-              <option>Sort by Name A-Z</option>
-            </select>
+
+          {/* Search + Sort */}
+          <div className="flex flex-col md:flex-row gap-3 md:items-center">
+            {/* Search bar with icon */}
+            <div className="relative">
+              <MagnifyingGlassIcon className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Search subject..."
+                className="input input-bordered w-full md:w-64 pl-8 rounded-full text-sm"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+
+            {/* Sort dropdown (pretty) */}
+            <div className="dropdown dropdown-end">
+              <label
+                tabIndex={0}
+                className="btn btn-ghost border border-gray-200 rounded-full text-sm gap-2 px-4"
+              >
+                <FunnelIcon className="w-4 h-4" />
+                Sort
+                <ChevronDownIcon className="w-4 h-4" />
+              </label>
+              <ul
+                tabIndex={0}
+                className="dropdown-content menu shadow bg-base-100 rounded-xl p-2 w-52 text-sm"
+              >
+                <li>
+                  <a onClick={() => setSortOption("code-asc")}>
+                    Code A → Z
+                  </a>
+                </li>
+                <li>
+                  <a onClick={() => setSortOption("code-desc")}>
+                    Code Z → A
+                  </a>
+                </li>
+                <li>
+                  <a onClick={() => setSortOption("name-asc")}>
+                    Name A → Z
+                  </a>
+                </li>
+                <li>
+                  <a onClick={() => setSortOption("name-desc")}>
+                    Name Z → A
+                  </a>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
 
-        {/* Class List */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-700">Classes ({classes.length})</h3>
-          
-          {classes.length > 0 ? (
-            classes.map((classItem) => (
-              <ClassCard 
-                key={classItem.subject_id._id} // Use the populated subject_id
-                classInfo={classItem}
-                onClick={() => handleClassClick(classItem.subject_id._id)} 
+        {/* Classes count */}
+        <div className="flex justify-between items-center mb-3 text-sm text-gray-500">
+          <span>
+            Classes ({visibleClasses.length}
+            {activeDept !== "All" ? ` • ${activeDept}` : ""})
+          </span>
+        </div>
+
+        {/* Class cards list */}
+        <div className="space-y-3">
+          {visibleClasses.length > 0 ? (
+            visibleClasses.map((cls) => (
+              <ClassCard
+                key={cls.subject_id._id}
+                classInfo={cls}
+                onClick={() => handleClassClick(cls.subject_id._id)}
               />
             ))
           ) : (
-            <p className="text-gray-500 text-center py-12">
-              You are not assigned to any classes.
+            <p className="text-gray-500 text-center py-10">
+              {classes.length === 0
+                ? "You are not assigned to any classes."
+                : "No classes match your filters."}
             </p>
           )}
         </div>

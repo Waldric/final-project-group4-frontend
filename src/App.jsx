@@ -4,6 +4,7 @@ import Login from "./pages/Login";
 import DashboardLayout from "./pages/DashboardLayout";
 import DashboardIndex from "./pages/DashboardIndex";
 import MyGrades from "./pages/student/MyGrades";
+import MyDisciplinaryRecords from "./pages/student/MyDisciplinaryRecords";
 import TeacherPageSample from "./pages/teacher/TeacherPageSample";
 import ManageGrades from "./pages/teacher/ManageGrades";
 import ManageDisciplinary from "./pages/teacher/ManageDisciplinary";
@@ -29,6 +30,8 @@ export default function App() {
           <Route element={<ProtectedRoute requiredRole="Student" />}>
             <Route path="student/grades" element={<MyGrades />} />
             <Route path="student/profile" element={<StudentProfileView />} />
+            <Route path="student/records" element={<MyDisciplinaryRecords />}
+          />
           </Route>
 
           {/* Teacher routes */}
