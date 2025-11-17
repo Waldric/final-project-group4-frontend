@@ -34,16 +34,18 @@ const AddDisciplinaryModal = ({ onSuccess }) => {
     }
 
     const payload = {
-      teachers_id: user._id,
-      student_number,
-      violation,
-      sanction,
-      severity,  // ← NOW GUARANTEED NUMBER 1-5
-      remarks,
-      date: new Date().toISOString(),
-    };
-
-    console.log("SENDING PAYLOAD:", payload);  // ← CHECK THIS IN CONSOLE
+  // Try different possible shapes of your saved user
+    teachers_id:
+    user?.account_ref?.id ||   // if you stored the Account inside user.account_ref
+    user?.teacher?.id ||       // if you stored a Teacher object
+    user?.id,                  // fallback to user._id
+    student_number,
+    violation,
+    sanction,
+    severity,
+    remarks,
+    date: new Date().toISOString(),
+};
 
     const response = await api.post("/disciplinary", payload);
     console.log("SUCCESS:", response.data);  // ← CHECK THIS TOO
@@ -63,7 +65,7 @@ const AddDisciplinaryModal = ({ onSuccess }) => {
         <h3 className="font-bold text-xl mb-6">Add New Disciplinary Record</h3>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-
+       
           {/* Student Number */}
           <div className="form-control">
             <label className="label font-medium">

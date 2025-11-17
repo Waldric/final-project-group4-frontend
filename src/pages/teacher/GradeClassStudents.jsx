@@ -1,9 +1,10 @@
 // src/pages/teacher/GradeClassStudents.jsx
-import React from "react";
+import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useFetch } from "../../hooks/useFetch";
 import Header from "../../components/Header";
-import { ArrowLeftIcon, UserCircleIcon } from "@heroicons/react/24/solid";
+import { ArrowLeftIcon, UserCircleIcon, PencilSquareIcon } from "@heroicons/react/24/solid";
+import EditGradeModal from "../../components/EditGradeModal";
 
 const GradeClassStudents = () => {
   const { teacherId, subjectId } = useParams();
@@ -13,9 +14,23 @@ const GradeClassStudents = () => {
     `/grades/teacher/${teacherId}/subject/${subjectId}/students`
   );
 
-  const students = Array.isArray(data) 
-  ? data 
-  : data?.data || data || [];
+  const students = Array.isArray(data) ? data : data?.data || data || [];
+
+  const [editingStudent, setEditingStudent] = useState(null);
+
+  const handleEditClick = (student) => {
+    setEditingStudent({
+      ...student,
+      teacherId: teacherId,
+      subjectId: subjectId,
+    });
+  };
+
+  const handleGradeSaved = () => {
+    setEditingStudent(null);
+    // Optional: refetch instead of reload
+    window.location.reload();
+  };
 
   return (
     <div className="flex-1 p-4 md:p-8 bg-[#F5F5FB]">
@@ -34,7 +49,7 @@ const GradeClassStudents = () => {
           Enrolled Students ({students.length})
         </h2>
 
-        {/* Loading State */}
+        {/* Loading & Error States */}
         {loading && (
           <div className="space-y-4">
             {[...Array(5)].map((_, i) => (
@@ -49,14 +64,13 @@ const GradeClassStudents = () => {
           </div>
         )}
 
-        {/* Error State */}
         {error && (
           <div className="alert alert-error shadow-lg">
-            <span>Error loading students: {error.message || "Please try again."}</span>
+            <span>Error: {error.message || "Please try again."}</span>
           </div>
         )}
 
-        {/* Students Table */}
+        {/* Empty State */}
         {!loading && !error && students.length === 0 && (
           <div className="text-center py-16 text-gray-500">
             <UserCircleIcon className="w-16 h-16 mx-auto mb-4 text-gray-300" />
@@ -64,6 +78,7 @@ const GradeClassStudents = () => {
           </div>
         )}
 
+        {/* Students Table */}
         {!loading && !error && students.length > 0 && (
           <div className="overflow-x-auto">
             <table className="table table-zebra w-full">
@@ -121,18 +136,29 @@ const GradeClassStudents = () => {
                         <span className="text-gray-400">—</span>
                       )}
                     </td>
+
+                    {/* THIS IS THE FIXED STATUS COLUMN WITH PENCIL */}
                     <td>
-                      <span
-                        className={`badge badge-lg font-medium ${
-                          s.status === "Passed"
-                            ? "badge-success"
-                            : s.status === "Failed"
-                            ? "badge-error"
-                            : "badge-warning"
-                        }`}
-                      >
-                        {s.status}
-                      </span>
+                      <div className="flex items-center justify-between">
+                        <span
+                          className={`badge badge-lg font-medium ${
+                            s.status === "Passed"
+                              ? "badge-success"
+                              : s.status === "Failed"
+                              ? "badge-error"
+                              : "badge-warning"
+                          }`}
+                        >
+                          {s.status}
+                        </span>
+                        <button
+                          onClick={() => handleEditClick(s)}
+                          className="btn btn-ghost btn-xs ml-4 opacity-70 hover:opacity-100 transition"
+                          title="Edit grade"
+                        >
+                          <PencilSquareIcon className="w-5 h-5 text-[#5603AD]" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -141,6 +167,15 @@ const GradeClassStudents = () => {
           </div>
         )}
       </div>
+
+      {/* MODAL — MUST BE INSIDE RETURN AND AT THE END */}
+      {editingStudent && (
+        <EditGradeModal
+          student={editingStudent}
+          onSuccess={handleGradeSaved}
+          onClose={() => setEditingStudent(null)}
+        />
+      )}
     </div>
   );
 };
