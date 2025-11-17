@@ -2,7 +2,7 @@
 import Header from "../../components/Header";
 import { useAuth } from "../../contexts/AuthContext";
 import { useFetch } from "../../hooks/useFetch";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FunnelIcon,
@@ -19,81 +19,77 @@ const ManageGrades = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  // ⬇️ IMPORTANT: fetch TEACHER by account_ref, not /accounts/:account_id
-  // Backend: GET /api/teachers/account/:accountId  (adjust base path if needed)
-  const {
-    data: teacherData,
-    loading,
-    error,
-  } = useFetch(`/teachers/account/${user._id}`);
+  // CRITICAL: Normalize user ID (supports both .id and ._id)
+  const userId = user?._id || user?.id || null;
 
-  // Teacher's departments and class list
+  // CRITICAL: Persistent cache — survives navigation!
+  const [cachedTeacherData, setCachedTeacherData] = useState(null);
+
+  const { data: freshTeacherData, loading, error } = useFetch(
+    userId ? `/teachers/account/${userId}` : null
+  );
+
+  // CRITICAL: Update cache only when we get real data
+  useEffect(() => {
+    if (freshTeacherData && freshTeacherData.subjects) {
+      setCachedTeacherData(freshTeacherData);
+    }
+  }, [freshTeacherData]);
+
+  // Use cached data when navigating back — NEVER flickers!
+  const teacherData = cachedTeacherData || freshTeacherData;
+
   const departments = teacherData?.departments ?? [];
   const classes = teacherData?.subjects ?? [];
 
-  // UI state
-  const [activeDept, setActiveDept] = useState<string | "All">("All");
+  // Debug (optional)
+  console.log("userId:", userId);
+  console.log("Fresh data:", freshTeacherData);
+  console.log("Using cached data:", cachedTeacherData);
+  console.log("Final classes count:", classes.length);
+
+  const [activeDept, setActiveDept] = useState("All");
   const [search, setSearch] = useState("");
-  const [sortOption, setSortOption] = useState("code-asc"); // "code-asc" | "code-desc" | "name-asc" | "name-desc"
+  const [sortOption, setSortOption] = useState("code-asc");
 
-  // ------------------- FILTER + SORT (only filtered results) -------------------
   const visibleClasses = useMemo(() => {
-    if (!classes || classes.length === 0) return [];
+    if (!classes.length) return [];
 
-    const term = search.trim().toLowerCase();
+    let result = [...classes];
 
-    let result = classes;
-
-    // filter by department (subject.department)
     if (activeDept !== "All") {
-      result = result.filter(
-        (cls) =>
-          cls.subject_id?.department &&
-          cls.subject_id.department === activeDept
-      );
+      result = result.filter(cls => cls.subject_id?.department === activeDept);
     }
 
-    // search by subject code or name
-    if (term) {
-      result = result.filter((cls) => {
-        const code = cls.subject_id?.code?.toLowerCase() ?? "";
-        const name = cls.subject_id?.subject_name?.toLowerCase() ?? "";
+    if (search.trim()) {
+      const term = search.toLowerCase();
+      result = result.filter(cls => {
+        const code = (cls.subject_id?.code || "").toLowerCase();
+        const name = (cls.subject_id?.subject_name || "").toLowerCase();
         return code.includes(term) || name.includes(term);
       });
     }
 
-    // sort only AFTER filtering
-    result = [...result].sort((a, b) => {
+    result.sort((a, b) => {
       const codeA = a.subject_id?.code ?? "";
       const codeB = b.subject_id?.code ?? "";
       const nameA = a.subject_id?.subject_name ?? "";
       const nameB = b.subject_id?.subject_name ?? "";
 
       switch (sortOption) {
-        case "code-desc":
-          return codeB.localeCompare(codeA);
-        case "name-asc":
-          return nameA.localeCompare(nameB);
-        case "name-desc":
-          return nameB.localeCompare(nameA);
-        case "code-asc":
-        default:
-          return codeA.localeCompare(codeB);
+        case "code-desc": return codeB.localeCompare(codeA);
+        case "name-asc": return nameA.localeCompare(nameB);
+        case "name-desc": return nameB.localeCompare(nameA);
+        default: return codeA.localeCompare(codeB);
       }
     });
 
     return result;
   }, [classes, activeDept, search, sortOption]);
 
-  // Navigate to detailed grade page for that class
-  const handleClassClick = (classId) => {
-    navigate(`/dashboard/teacher/grades/${classId}`);
-  };
-
-  // ------------------- LOADING / ERROR -------------------
-  if (loading) {
+  if (!userId || (loading && !cachedTeacherData)) {
     return (
-      <div className="flex-1 p-4 md:p-8">
+      <div className="flex-1 p-4 md:p-8 bg-[#F5F5FB]">
         <Header location={headerLocation} subheader={headerSubtext} />
         <div className="flex justify-center items-center py-48">
           <span className="loading loading-dots loading-lg"></span>
@@ -102,33 +98,25 @@ const ManageGrades = () => {
     );
   }
 
-  if (error) {
+  if (error && !cachedTeacherData) {
     return (
-      <div className="flex-1 p-4 md:p-8">
+      <div className="flex-1 p-4 md:p-8 bg-[#F5F5FB]">
         <Header location={headerLocation} subheader={headerSubtext} />
         <div className="text-center py-48">
-          <p className="text-2xl font-semibold text-red-500">
-            Error loading data
-          </p>
-          <p className="text-gray-500">
-            {error.message || "Request failed. Check the teacher endpoint."}
-          </p>
+          <p className="text-2xl font-semibold text-red-500">Error loading classes</p>
+          <p className="text-gray-500 mt-2">Please refresh the page.</p>
         </div>
       </div>
     );
   }
 
-  // ------------------- MAIN UI -------------------
   return (
     <div className="flex-1 p-4 md:p-8 bg-[#F5F5FB]">
-      {/* Page Header */}
       <Header location={headerLocation} subheader={headerSubtext} />
 
-      {/* White card container like Figma */}
       <div className="mt-4 bg-white rounded-2xl shadow-sm border border-gray-100 p-5 md:p-6">
-        {/* Top row: dept tabs + filters */}
+        {/* Dept Tabs */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
-          {/* Dept Tabs */}
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setActiveDept("All")}
@@ -155,9 +143,7 @@ const ManageGrades = () => {
             ))}
           </div>
 
-          {/* Search + Sort */}
           <div className="flex flex-col md:flex-row gap-3 md:items-center">
-            {/* Search bar with icon */}
             <div className="relative">
               <MagnifyingGlassIcon className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
@@ -169,61 +155,36 @@ const ManageGrades = () => {
               />
             </div>
 
-            {/* Sort dropdown (pretty) */}
             <div className="dropdown dropdown-end">
-              <label
-                tabIndex={0}
-                className="btn btn-ghost border border-gray-200 rounded-full text-sm gap-2 px-4"
-              >
+              <label tabIndex={0} className="btn btn-ghost border border-gray-200 rounded-full text-sm gap-2 px-4">
                 <FunnelIcon className="w-4 h-4" />
                 Sort
                 <ChevronDownIcon className="w-4 h-4" />
               </label>
-              <ul
-                tabIndex={0}
-                className="dropdown-content menu shadow bg-base-100 rounded-xl p-2 w-52 text-sm"
-              >
-                <li>
-                  <a onClick={() => setSortOption("code-asc")}>
-                    Code A → Z
-                  </a>
-                </li>
-                <li>
-                  <a onClick={() => setSortOption("code-desc")}>
-                    Code Z → A
-                  </a>
-                </li>
-                <li>
-                  <a onClick={() => setSortOption("name-asc")}>
-                    Name A → Z
-                  </a>
-                </li>
-                <li>
-                  <a onClick={() => setSortOption("name-desc")}>
-                    Name Z → A
-                  </a>
-                </li>
+              <ul tabIndex={0} className="dropdown-content menu shadow bg-base-100 rounded-xl p-2 w-52 text-sm">
+                <li><a onClick={() => setSortOption("code-asc")}>Code A to Z</a></li>
+                <li><a onClick={() => setSortOption("code-desc")}>Code Z to A</a></li>
+                <li><a onClick={() => setSortOption("name-asc")}>Name A to Z</a></li>
+                <li><a onClick={() => setSortOption("name-desc")}>Name Z to A</a></li>
               </ul>
             </div>
           </div>
         </div>
 
-        {/* Classes count */}
         <div className="flex justify-between items-center mb-3 text-sm text-gray-500">
           <span>
-            Classes ({visibleClasses.length}
-            {activeDept !== "All" ? ` • ${activeDept}` : ""})
+            Classes ({visibleClasses.length})
+            {activeDept !== "All" && ` • ${activeDept}`}
           </span>
         </div>
 
-        {/* Class cards list */}
         <div className="space-y-3">
           {visibleClasses.length > 0 ? (
             visibleClasses.map((cls) => (
               <ClassCard
-                key={cls.subject_id._id}
+                key={cls._id}
                 classInfo={cls}
-                onClick={() => handleClassClick(cls.subject_id._id)}
+                onClick={() => navigate(`/dashboard/teacher/grades/class/${teacherData._id}/${cls.subject_id._id}`)}
               />
             ))
           ) : (
