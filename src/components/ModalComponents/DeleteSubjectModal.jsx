@@ -1,7 +1,4 @@
-import {
-  ArrowRightStartOnRectangleIcon,
-  TrashIcon,
-} from "@heroicons/react/24/solid";
+import { ArrowRightStartOnRectangleIcon,TrashIcon, } from "@heroicons/react/24/solid";
 import { useModal } from "../../contexts/ModalContext";
 import { useSubjectContext } from "../../contexts/SubjectContext";
 import { useState } from "react";

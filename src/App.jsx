@@ -6,7 +6,10 @@ import DashboardIndex from "./pages/DashboardIndex";
 import StudentProfileView from "./pages/student/StudentProfileView";
 import TeacherPageSample from "./pages/teacher/TeacherPageSample";
 import ManageSubjects from "./pages/admin/ManageSubjects";
-import AdminEnrollment from "./pages/admin/AdminEnrollment";
+import TeacherProfileView from "./pages/teacher/TeacherProfileView";
+import AdminProfileView from "./pages/admin/AdminProfileView";
+import StudentRecords from "./pages/admin/StudentRecords";
+import StudentSchedulePage from "./pages/admin/StudentSchedulePage";
 
 export default function App() {
   return (
@@ -27,10 +30,13 @@ export default function App() {
 
           {/* Teacher pages */}
           <Route path="teacher/classes" element={<TeacherPageSample />} />
+          <Route path="teacher/profile" element={<TeacherProfileView />} />
 
           {/* Admin pages */}
-          <Route path="admin/student-records" element={<AdminEnrollment />} />
+          <Route path="admin/profile" element={<AdminProfileView />} />
+          <Route path="admin/student-records" element={<StudentRecords />} />
           <Route path="admin/subjects" element={<ManageSubjects />} />
+          <Route path="admin/student-schedule/:studentId" element={<StudentSchedulePage />} />  
 
         </Route>
 

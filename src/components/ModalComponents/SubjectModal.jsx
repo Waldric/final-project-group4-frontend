@@ -1,8 +1,4 @@
-import {
-  ArrowRightStartOnRectangleIcon,
-  PencilIcon,
-  PlusIcon,
-} from "@heroicons/react/24/solid";
+import { ArrowRightStartOnRectangleIcon, PencilIcon, PlusIcon } from "@heroicons/react/24/solid";
 import { useModal } from "../../contexts/ModalContext";
 import { useSubjectContext } from "../../contexts/SubjectContext";
 import { useState } from "react";

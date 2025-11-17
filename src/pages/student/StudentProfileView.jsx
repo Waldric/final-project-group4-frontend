@@ -10,7 +10,10 @@ const StudentProfileView = () => {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
 
-  const [showEdit, setShowEdit] = useState(false);
+  // ---------- NEW STATES ----------
+  const [showModal, setShowModal] = useState(false);
+  const [modalFields, setModalFields] = useState({});
+  const [modalTitle, setModalTitle] = useState("");
 
   useEffect(() => {
     if (!user || !user.id) {
@@ -22,8 +25,6 @@ const StudentProfileView = () => {
     const fetchStudent = async () => {
       try {
         const res = await api.get(`/students/byAccount/${user.id}`);
-        console.log("Student API response:", res.data);
-
         const payload = res.data?.data || res.data;
         setStudent(payload);
       } catch (err) {
@@ -43,6 +44,35 @@ const StudentProfileView = () => {
 
   const formatBirthday = (date) =>
     date ? new Date(date).toLocaleDateString("en-US") : "N/A";
+
+  // ---------- NEW: OPEN MODAL ----------
+  const openEditModal = (fields, title) => {
+    setModalFields(fields);
+    setModalTitle(title);
+    setShowModal(true);
+  };
+
+  // ---------- NEW: HANDLE SAVE ----------
+  const handleSave = async (updatedFields) => {
+    try {
+      // Update account fields if needed
+      if (updatedFields.firstname || updatedFields.email) {
+        await api.put(`/accounts/${user.id}`, updatedFields);
+
+        const updatedUser = { ...user, ...updatedFields };
+        setUser(updatedUser);
+        sessionStorage.setItem("mie_user", JSON.stringify(updatedUser));
+      }
+
+      // Update student fields
+      await api.put(`/students/${student._id}`, updatedFields);
+
+      setStudent({ ...student, ...updatedFields });
+    } catch (err) {
+      console.error("Update error:", err);
+      alert("Failed to update profile.");
+    }
+  };
 
   // -------------------- RENDER STATES --------------------
 
@@ -68,6 +98,7 @@ const StudentProfileView = () => {
 
       {/* MAIN GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mt-6">
+
         {/* LEFT COLUMN */}
         <div className="bg-white shadow-md rounded-2xl p-4 border border-gray-200 text-center lg:h-81">
           <img
@@ -86,33 +117,36 @@ const StudentProfileView = () => {
           </p>
 
           <div className="mt-4 text-sm space-y-1">
-            <p>
-              <span className="font-medium">Program:</span> {student.course}
-            </p>
-            <p>
-              <span className="font-medium">Department:</span>{" "}
-              {student.department}
-            </p>
-            <p>
-              <span className="font-medium">Year Level:</span>{" "}
-              {student.year_level}
-            </p>
+            <p><span className="font-medium">Program:</span> {student.course}</p>
+            <p><span className="font-medium">Department:</span> {student.department}</p>
+            <p><span className="font-medium">Year Level:</span> {student.year_level}</p>
           </div>
         </div>
 
         {/* RIGHT COLUMN */}
         <div className="lg:col-span-3 flex flex-col gap-6">
+
           {/* PERSONAL DETAILS */}
-          <Card title="Personal Details" onEdit={() => setShowEdit(true)}>
+          <Card
+            title="Personal Details"
+            onEdit={() =>
+              openEditModal(
+                {
+                  firstname: user.firstname,
+                  lastname: user.lastname,
+                  phone: student.phone,
+                  address: student.address,
+                  mother: student.mother,
+                  father: student.father,
+                  guardian_phone: student.guardian_phone,
+                },
+                "Edit Personal Details"
+              )
+            }
+          >
             <Grid>
-              <Input
-                label="Full Name"
-                value={`${user.firstname} ${user.lastname}`}
-              />
-              <Input
-                label="Birthdate"
-                value={formatBirthday(student.birthday)}
-              />
+              <Input label="Full Name" value={`${user.firstname} ${user.lastname}`} />
+              <Input label="Birthdate" value={formatBirthday(student.birthday)} />
               <Input label="Phone Number" value={student.phone} />
               <Input label="Address" value={student.address} />
               <Input label="Mother" value={student.mother} />
@@ -122,7 +156,20 @@ const StudentProfileView = () => {
           </Card>
 
           {/* ACADEMIC INFO */}
-          <Card title="Academic Information" onEdit={() => setShowEdit(true)}>
+          <Card
+            title="Academic Information"
+            onEdit={() =>
+              openEditModal(
+                {
+                  department: student.department,
+                  course: student.course,
+                  year_level: student.year_level,
+                  student_number: student.student_number,
+                },
+                "Edit Academic Information"
+              )
+            }
+          >
             <Grid>
               <Input label="Department" value={student.department} />
               <Input label="Course" value={student.course} />
@@ -132,7 +179,20 @@ const StudentProfileView = () => {
           </Card>
 
           {/* ACCOUNT INFO */}
-          <Card title="Account Information" onEdit={() => setShowEdit(true)}>
+          <Card
+            title="Account Information"
+            onEdit={() =>
+              openEditModal(
+                {
+                  firstname: user.firstname,
+                  lastname: user.lastname,
+                  email: user.email,
+                  department: user.department,
+                },
+                "Edit Account Information"
+              )
+            }
+          >
             <Grid>
               <Input label="Account ID" value={user.id} />
               <Input label="Email" value={user.email} />
@@ -140,36 +200,17 @@ const StudentProfileView = () => {
               <Input label="User Type" value={user.user_type || "Student"} />
             </Grid>
           </Card>
+
         </div>
       </div>
 
-      {/* EDIT PROFILE MODAL */}
+      {/* -------------------- EDIT MODAL -------------------- */}
       <EditProfileModal
-        open={showEdit}
-        onClose={() => setShowEdit(false)}
-        student={student}
-        account={user}
-        onUpdated={(updated) => {
-          setStudent({
-            ...student,
-            phone: updated.phone,
-            address: updated.address,
-            mother: updated.mother,
-            father: updated.father,
-            guardian_phone: updated.guardian_phone,
-          });
-
-          // update account state + session storage
-          const updatedUser = {
-            ...user,
-            firstname: updated.firstname,
-            lastname: updated.lastname,
-            email: updated.email,
-          };
-
-          setUser(updatedUser);
-          sessionStorage.setItem("mie_user", JSON.stringify(updatedUser));
-        }}
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        fields={modalFields}
+        title={modalTitle}
+        onSave={handleSave}
       />
     </div>
   );
@@ -185,7 +226,7 @@ const Card = ({ title, children, onEdit }) => (
         className="btn btn-sm bg-[#5603AD] hover:bg-purple-700 text-white rounded-lg"
         onClick={onEdit}
       >
-        Edit Profile
+        Edit Details
       </button>
     </div>
     {children}
