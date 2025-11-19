@@ -78,10 +78,14 @@ const TeacherDashboard = () => {
           subjects: schedule,
           partialSubjects: schedule.slice(0, 2),
         });
-        const re2 = await api.get(
+
+        console.log(res1);
+        const res2 = await api.get(
           `/reports/numStudents/teacher/${res1.data.data._id}`
         );
-        const nStudents = re2.data.data[0].total ?? null;
+
+        console.log(res2);
+        const nStudents = res2.data.data[0].total ?? null;
         setNumOfStudents({
           loading: false,
           error: null,

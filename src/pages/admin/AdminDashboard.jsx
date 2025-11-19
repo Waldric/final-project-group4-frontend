@@ -75,7 +75,7 @@ const AdminDashboard = () => {
   if (error) {
     return (
       <div className="h-screen flex justify-center items-center text-center">
-        <span className="text-4xl">{info.error}</span>
+        <span className="text-4xl">{error}</span>
       </div>
     );
   }
