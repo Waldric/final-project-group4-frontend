@@ -15,9 +15,9 @@ const TopNavbar = ({ user, setUser }) => {
       case "student":
         return "/dashboard/student/profile";
       case "teacher":
-        return "/dashboard/teacher/profile"; // can be updated later
+        return "/dashboard/teacher/profile";
       case "admin":
-        return "/dashboard/admin/profile"; 
+        return "/dashboard/admin/profile";
       default:
         return "/dashboard";
     }
@@ -34,9 +34,9 @@ const TopNavbar = ({ user, setUser }) => {
 
   const displayName =
     user && (user.firstname || user.lastname)
-      ? `${user.firstname || ""}${
-          user.firstname && user.lastname ? ", " : ""
-        }${user.lastname || ""}`.replace(/^, |, $/, "")
+      ? `${user.firstname || ""}${user.firstname && user.lastname ? ", " : ""}${
+          user.lastname || ""
+        }`.replace(/^, |, $/, "")
       : "No Profile";
 
   const displayRole = (user && (user.user_type || user.role)) || "Student";

@@ -318,7 +318,7 @@ export default function StudentRecords() {
           onClose={() => setAddOpen(false)}
           onAdded={() => {
             setAddOpen(false);
-            fetchStudents(); // refresh list
+            fetchStudents(); 
           }}
         />
       </div>

@@ -81,31 +81,36 @@ const AdminProfileView = () => {
       {/* MAIN GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mt-6">
         {/* LEFT PROFILE CARD */}
-        <div className="bg-white shadow-md rounded-2xl p-16 text-center h-105">
+        <div className="bg-white shadow-md rounded-2xl p-4 border border-gray-200 text-center lg:h-105 flex flex-col justify-center items-center">
           <img
             src={avatarSrc}
             onError={(e) => {
               e.currentTarget.onerror = null;
               e.currentTarget.src = "/mie-logo.png";
             }}
-            className="w-24 h-24 rounded-full object-cover mx-auto mb-4 border"
+            className="w-20 h-20 rounded-full object-cover mx-auto mb-4 border border-gray-200"
           />
 
           <h2 className="font-semibold text-lg">{fullName}</h2>
           <p className="text-gray-500 text-sm">Administrator</p>
 
-          <div className="mt-4 text-sm space-y-1">
-            <p>
-              <span className="font-medium">Account ID:</span>{" "}
-              {admin.account_id}
-            </p>
-            <p>
-              <span className="font-medium">Department:</span> {department}
-            </p>
-            <p>
-              <span className="font-medium">Status:</span>{" "}
-              {admin.status || "Active"}
-            </p>
+          <div className="mt-4 text-sm space-y-2 px-9">
+            <div className="flex">
+              <span className="font-medium w-28 text-left shrink-0">
+                Account ID:
+              </span>
+              <span className="text-gray-600 whitespace-nowrap">
+                {admin.account_id}
+              </span>
+            </div>
+            <div className="flex">
+              <span className="font-medium w-28 text-left shrink-0">
+                Department:
+              </span>
+              <span className="text-gray-600 whitespace-nowrap">
+                {department}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -134,23 +139,15 @@ const AdminProfileView = () => {
             </Grid>
           </Card>
 
-          {/* -------- System Details (NO EDIT) -------- */}
+          {/* -------- System Details -------- */}
           <Card title="System Details" hideEdit={true}>
             <Grid>
               <Input
-                label="Date Created"
+                label="Account Date Created"
                 value={
-                  admin["date-created"]
-                    ? new Date(admin["date-created"]).toLocaleString()
+                  admin.date_created
+                    ? new Date(admin.date_created).toLocaleString()
                     : "N/A"
-                }
-              />
-              <Input
-                label="Last Login"
-                value={
-                  admin.last_login
-                    ? new Date(admin.last_login).toLocaleString()
-                    : "Never logged in"
                 }
               />
               <Input label="Status" value={admin.status} />
@@ -166,6 +163,7 @@ const AdminProfileView = () => {
         fields={modalFields}
         title={modalTitle}
         onSave={handleSave}
+        user={user}
       />
     </div>
   );

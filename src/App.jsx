@@ -20,6 +20,7 @@ import StudentRecords from "./pages/admin/StudentRecords";
 import StudentSchedulePage from "./pages/admin/StudentSchedulePage";
 import RecordGrades from "./pages/admin/RecordGrades";
 import StudentViewSchedule from "./pages/student/StudentViewSchedule";
+import StudentDashboard from "./pages/student/StudentDashboard";
 
 export default function App() {
   return (
@@ -35,6 +36,7 @@ export default function App() {
 
           {/* Student routes */}
           <Route element={<ProtectedRoute requiredRole="Student" />}>
+            <Route path="student/dashboard" element={<StudentDashboard />} />
             <Route path="student/grades" element={<MyGrades />} />
             <Route path="student/profile" element={<StudentProfileView />} />
             <Route path="student/records" element={<MyDisciplinaryRecords />} />
