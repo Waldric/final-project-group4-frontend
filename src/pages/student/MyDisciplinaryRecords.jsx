@@ -14,12 +14,43 @@ const MyDisciplinaryRecords = () => {
   const [selectedSort, setSelectedSort] = useState("Newest First");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [studentNumber, setStudentNumber] = useState(null);
 
-  // FETCH ONLY CURRENT STUDENT'S RECORDS
+  // STEP 1: Fetch student document to get student_number
+  useEffect(() => {
+    const fetchStudentNumber = async () => {
+      if (!user?.id) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        // Fetch student document by account ID
+        const response = await api.get(`/students/byAccount/${user.id}`);
+        const studentData = response.data.data || response.data;
+        
+        if (studentData?.student_number) {
+          setStudentNumber(studentData.student_number);
+        } else {
+          setError("Could not find student information");
+          setLoading(false);
+        }
+      } catch (err) {
+        const msg = err.response?.data?.message || "Failed to load student information";
+        setError(msg);
+        console.error("Fetch student number error:", err);
+        setLoading(false);
+      }
+    };
+
+    fetchStudentNumber();
+
+  }, [user?.id]);
+
+  // STEP 2: Fetch disciplinary records using student_number
   useEffect(() => {
     const fetchMyRecords = async () => {
-      if (!user?.student_number) {
-        setLoading(false);
+      if (!studentNumber) {
         return;
       }
 
@@ -27,7 +58,7 @@ const MyDisciplinaryRecords = () => {
         setLoading(true);
         setError("");
 
-        const response = await api.get(`/disciplinary?student=${user.student_number}`);
+        const response = await api.get(`/disciplinary?student=${studentNumber}`);
         
         const data = response.data.data || [];
         setRecords(data);
@@ -42,7 +73,7 @@ const MyDisciplinaryRecords = () => {
     };
 
     fetchMyRecords();
-  }, [user?.student_number]);
+  }, [studentNumber]);
 
   // SEARCH FILTER
   useEffect(() => {

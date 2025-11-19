@@ -23,6 +23,7 @@ const GradeClassStudents = () => {
       ...student,
       teacherId: teacherId,
       subjectId: subjectId,
+      gradeId: student.grade_id,
     });
   };
 

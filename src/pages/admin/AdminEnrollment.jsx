@@ -1,206 +1,350 @@
+import { useEffect, useMemo, useState, useRef } from "react";
 import Header from "../../components/Header";
-import axios from "axios";
-import { useEffect, useState } from "react";
+import api from "../../api";
+import { useModal } from "../../contexts/ModalContext";
 
-const AdminEnrollment = () => {
-  const headerLocation = "Student Records";
-  const headerSubtext =
-    "Manage student enrollments, course assignments, and academic details.";
+const SORT_OPTIONS = [
+  { value: "all", label: "All" },
+  { value: "code", label: "Code" },
+  { value: "subject_name", label: "Subject" },
+  { value: "department", label: "Department" },
+  { value: "year_level", label: "Year Level" },
+];
+
+const DEPARTMENTS = ["IS", "CCS", "COE", "COS"];
+const SortIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-4 w-4 mr-1"
+    viewBox="0 0 20 20"
+    fill="currentColor"
+  >
+    <path d="M3 4h10v2H3V4zm0 4h7v2H3V8zm0 4h4v2H3v-2z" />
+    <path d="M14 14l3-3 3 3h-2v4h-2v-4h-2z" />
+  </svg>
+);
+
+export default function AdminEnrollment() {
+  const { subMod, setSubMod, deleteSubj, setDeleteSubj } = useModal();
 
   const [subjects, setSubjects] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [selectedIds, setSelectedIds] = useState([]);
 
-  // Fetch data from backend
+  const [filters, setFilters] = useState({
+    dept: [],
+    sem: "all",
+    search: "",
+  });
+
+  const [sort, setSort] = useState({ field: "all", order: "asc" });
+  const [sortOpen, setSortOpen] = useState(false);
+  const sortRef = useRef(null);
+
   useEffect(() => {
-    const fetchSubjects = async () => {
-      try {
-        const res = await axios.get("http://localhost:5000/api/admins/subjects/all");
-        setSubjects(res.data.data || []); // Adjust based on actual response structure
-      } catch (err) {
-        console.error("Error fetching subjects:", err);
-        setError("Failed to load data. Please check backend connection.");
-      } finally {
-        setLoading(false);
-      }
-    };
+    api
+      .get("/subjects")
+      .then((res) => setSubjects(res.data.data || []))
+      .catch(() => alert("Failed to load subjects"));
+  }, [subMod.status, deleteSubj.status]);
 
-    fetchSubjects();
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (sortRef.current && !sortRef.current.contains(e.target))
+        setSortOpen(false);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  /* FILTER + SORT */
+  const filtered = useMemo(() => {
+    let data = [...subjects];
+
+    if (filters.dept.length) {
+      data = data.filter((s) => filters.dept.includes(s.department));
+    }
+
+    if (filters.sem !== "all") {
+      data = data.filter((s) => String(s.semester) === filters.sem);
+    }
+
+    if (filters.search.trim()) {
+      const t = filters.search.toLowerCase();
+      data = data.filter(
+        (s) =>
+          s.subject_name.toLowerCase().includes(t) ||
+          s.code.toLowerCase().includes(t)
+      );
+    }
+
+    if (sort.field !== "all") {
+      data.sort((a, b) => {
+        const aVal = a[sort.field];
+        const bVal = b[sort.field];
+
+        return typeof aVal === "string"
+          ? sort.order === "asc"
+            ? aVal.localeCompare(bVal)
+            : bVal.localeCompare(aVal)
+          : sort.order === "asc"
+          ? aVal - bVal
+          : bVal - aVal;
+      });
+    }
+
+    return data;
+  }, [subjects, filters, sort]);
+
+  /* Selection helpers */
+  const toggleSelect = (id) =>
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+
+  const toggleSelectAll = (checked) =>
+    setSelectedIds(checked ? filtered.map((s) => s._id) : []);
+
+  /* Modal openers */
+  const openAddModal = () => {
+    setSubMod({
+      status: true,
+      method: "Add",
+      data: {
+        _id: "",
+        code: "",
+        subject_name: "",
+        units: 0,
+        department: "",
+        year_level: 0,
+        semester: 0,
+      },
+    });
+    document.getElementById("my_modal_1")?.showModal();
+  };
+
+  const openEditModal = () => {
+    if (selectedIds.length !== 1) return;
+    const s = subjects.find((item) => item._id === selectedIds[0]);
+
+    setSubMod({ status: true, method: "Edit", data: { ...s } });
+    document.getElementById("my_modal_1")?.showModal();
+  };
+
+  const openDeleteModal = () => {
+    if (!selectedIds.length) return;
+
+    setDeleteSubj({ status: true, subjList: selectedIds });
+    document.getElementById("my_modal_1")?.showModal();
+  };
+
+  /*  Department toggle */
+  const toggleDept = (dept) =>
+    setFilters((p) => ({
+      ...p,
+      dept: p.dept.includes(dept)
+        ? p.dept.filter((d) => d !== dept)
+        : [...p.dept, dept],
+    }));
+
+  const clearDepts = () =>
+    setFilters((p) => ({
+      ...p,
+      dept: [],
+    }));
+
   return (
-    <div className="flex-1 p-4 md:p-8 relative">
-      {/* Page Header */}
-      <div className="flex items-start justify-between">
-        <Header location={headerLocation} subheader={headerSubtext} />
+    <div className="flex-1 p-6">
+      <Header
+        location="Student Records"
+        subheader="Manage student enrollments, course assignments, and academic details."
+      />
 
-        <div className="dropdown dropdown-end mt-2">
-          <label tabIndex={0} className="btn btn-outline btn-sm">
-            Enrollment Details ▼
-          </label>
-          <ul
-            tabIndex={0}
-            className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
-          >
-            <li><a>Enrolled Students</a></li>
-            <li><a>Course Capacity</a></li>
-            <li><a>Instructor Assignments</a></li>
-          </ul>
-        </div>
-      </div>
+      <div className="bg-white shadow-md rounded-2xl p-6 mt-4">
+        {/* ---------------- Department Toggle Row ---------------- */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex gap-3 items-center bg-gray-50 px-4 py-2 rounded-full">
+            {DEPARTMENTS.map((dept) => {
+              const active = filters.dept.includes(dept);
 
-      {/* ===== Enrollment Management Card ===== */}
-      <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-6 mt-4">
-        {/* Departments with clear filter */}
-        <div className="flex gap-2 mb-6">
-          <button className="btn btn-sm bg-purple-600 hover:bg-purple-700 text-white rounded-full px-6">
-            COS
-          </button>
-          <button className="btn btn-sm bg-gray-200 text-gray-600 rounded-full px-6">
-            CCS
-          </button>
-          <button className="btn btn-sm bg-gray-200 text-gray-600 rounded-full px-6">
-            COE
-          </button>
-          <button className="btn btn-sm bg-gray-200 text-gray-600 rounded-full px-6">
-            IS
-          </button>
-          <button className="btn btn-sm btn-outline text-gray-700 border-gray-400 rounded-full px-6">
-            clear filter
-          </button>
-        </div>
+              return (
+                <button
+                  key={dept}
+                  className={`px-5 py-1.5 rounded-full text-sm transition-all 
+                  ${
+                    active
+                      ? "bg-[#5603AD] text-white shadow"
+                      : "text-gray-700 hover:bg-gray-200"
+                  }`}
+                  onClick={() => toggleDept(dept)}
+                >
+                  {dept}
+                </button>
+              );
+            })}
 
-        {/* Filters */}
-        <div className="flex flex-wrap items-center justify-between mb-4">
-          {/* Left side filters */}
-          <div className="flex gap-3">
-            <select className="select select-bordered w-48 text-sm">
-              <option>All Programs</option>
-              <option>BS Computer Science</option>
-              <option>BS Information Systems</option>
-            </select>
-
-            <select className="select select-bordered w-56 text-sm">
-              <option>2025–2026 1st Semester</option>
-              <option>2025–2026 2nd Semester</option>
-            </select>
+            <button
+              className="px-5 py-1.5 rounded-full border border-gray-400 text-gray-600 text-sm hover:bg-gray-100"
+              onClick={clearDepts}
+            >
+              clear filter
+            </button>
           </div>
+        </div>
 
-          {/* Right side search + filter + add new entry */}
-          <div className="flex items-center gap-2">
-            <div className="flex items-center border border-gray-300 rounded-lg px-2">
-              <input
-                type="text"
-                placeholder="Value"
-                className="input input-sm border-none focus:outline-none w-28"
-              />
-              <button className="btn btn-ghost btn-sm text-gray-500 px-1">✕</button>
+        {/* ---------------- Search + Sort + Add ---------------- */}
+        <div className="flex items-center justify-between mb-3">
+          {/* Semester filter */}
+          <select
+            value={filters.sem}
+            onChange={(e) => setFilters({ ...filters, sem: e.target.value })}
+            className="select select-sm select-bordered"
+          >
+            <option value="all">All Semesters</option>
+            <option value="1">1st</option>
+            <option value="2">2nd</option>
+          </select>
+
+          {/* Right side */}
+          <div className="flex items-center gap-3">
+            {/* Search */}
+            <input
+              type="text"
+              className="input input-sm input-bordered"
+              placeholder="Search code or name"
+              value={filters.search}
+              onChange={(e) =>
+                setFilters({ ...filters, search: e.target.value })
+              }
+            />
+
+            {/* Sort Dropdown */}
+            <div className="relative" ref={sortRef}>
+              <button
+                className="btn btn-sm btn-outline flex items-center gap-1 w-50"
+                onClick={() => setSortOpen((prev) => !prev)}
+              >
+                <SortIcon />
+                {sort.field === "all"
+                  ? "Sort: All"
+                  : `Sort: ${
+                      SORT_OPTIONS.find((o) => o.value === sort.field)?.label
+                    } (${sort.order === "asc" ? "A–Z" : "Z–A"})`}
+              </button>
+
+              {sortOpen && (
+                <ul className="absolute right-0 mt-2 z-50 menu p-2 shadow bg-white rounded-xl w-52">
+                  {SORT_OPTIONS.map((opt) => (
+                    <li key={opt.value}>
+                      <button
+                        className="flex justify-between"
+                        onClick={() => {
+                          setSort((prev) => ({
+                            field: opt.value,
+                            order:
+                              prev.field === opt.value && prev.order === "asc"
+                                ? "desc"
+                                : "asc",
+                          }));
+                          setSortOpen(false);
+                        }}
+                      >
+                        {opt.label}
+                        {sort.field === opt.value && (
+                          <span>{sort.order === "asc" ? "A–Z" : "Z–A"}</span>
+                        )}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
 
-            {/* Filter Button */}
-            <button className="btn btn-sm bg-gray-200 hover:bg-gray-400 text-black flex items-center gap-1">
-              <i className="fa fa-filter"></i> Filter
-            </button>
-
-            {/* Add new entry button */}
-            <button className="btn btn-warning btn-sm font-semibold text-white ml-2">
-              + Add New Entry
-            </button>
-          </div>
-        </div>
-
-        {/* Notification Banner */}
-        <div className="flex items-center justify-between border border-blue-300 rounded-xl bg-blue-50 px-4 py-2 mb-4 text-sm">
-          {/* Left Section: selected courses message */}
-          <div className="flex items-center gap-2 text-blue-600">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-5 h-5 text-blue-500"
-              fill="currentColor"
-              viewBox="0 0 20 20"
+            {/* Add Subject */}
+            <button
+              className="btn btn-warning btn-sm text-white"
+              onClick={openAddModal}
             >
-              <path
-                fillRule="evenodd"
-                d="M18 10A8 8 0 11 2 10a8 8 0 0116 0zm-8-3a1 1 0 100 2 1 1 0 000-2zm1 4a1 1 0 10-2 0v3a1 1 0 102 0v-3z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <span>
-              You have selected{" "}
-              <span className="font-medium text-blue-700">{subjects.length}</span> courses.
-            </span>
-          </div>
-
-          {/* Right Section: Action Buttons (edit & delete) */}
-          <div className="flex gap-2">
-            <button className="btn btn-sm btn-outline text-gray-700 hover:bg-gray-100 px-4">
-              Edit
-            </button>
-            <button className="btn btn-sm bg-red-500 hover:bg-red-600 text-white px-4">
-              Delete
+              + Add Subject
             </button>
           </div>
         </div>
 
-        {/* Table */}
+        {/* ---------------- Tracking Bar ---------------- */}
+        {selectedIds.length > 0 && (
+          <div className="flex items-center justify-between bg-blue-50 border border-blue-300 px-4 py-2 rounded-xl mb-3 text-sm">
+            <span className="text-blue-700">
+              ℹ️ {selectedIds.length} subject(s) selected
+            </span>
+
+            <div className="flex gap-2">
+              <button
+                className="btn btn-sm btn-outline"
+                disabled={selectedIds.length !== 1}
+                onClick={openEditModal}
+              >
+                Edit
+              </button>
+              <button
+                className="btn btn-sm btn-error text-white"
+                onClick={openDeleteModal}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ---------------- Table ---------------- */}
         <div className="overflow-x-auto">
-          <table className="table table-zebra w-full text-sm">
-            <thead className="bg-gray-100">
+          <table className="table table-zebra text-sm">
+            <thead>
               <tr>
                 <th>
-                  <input type="checkbox" className="checkbox checkbox-sm" />
+                  <input
+                    type="checkbox"
+                    className="checkbox checkbox-sm"
+                    checked={
+                      selectedIds.length === filtered.length &&
+                      filtered.length > 0
+                    }
+                    onChange={(e) => toggleSelectAll(e.target.checked)}
+                  />
                 </th>
-                <th>Course / Subject</th>
-                <th>Program</th>
-                <th>Section</th>
-                <th>Year Level</th>
-                <th>Capacity</th>
-                <th>Instructor</th>
-                <th className="text-center">Actions</th>
+                <th>Code</th>
+                <th>Subject</th>
+                <th>Department</th>
+                <th>Year</th>
+                <th>Units</th>
+                <th>Sem</th>
               </tr>
             </thead>
 
             <tbody>
-              {loading ? (
+              {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan="8" className="text-center py-6 text-gray-500">
-                    Loading courses...
+                  <td colSpan={7} className="text-center py-4 text-gray-500">
+                    No subjects found
                   </td>
                 </tr>
-              ) : error ? (
-                <tr>
-                  <td colSpan="8" className="text-center py-6 text-red-500">
-                    {error}
-                  </td>
-                </tr>
-              ) : subjects.length > 0 ? (
-                subjects.map((row, i) => (
-                  <tr key={row._id || i}>
+              ) : (
+                filtered.map((s) => (
+                  <tr key={s._id}>
                     <td>
-                      <input type="checkbox" className="checkbox checkbox-sm" />
+                      <input
+                        type="checkbox"
+                        className="checkbox checkbox-sm"
+                        checked={selectedIds.includes(s._id)}
+                        onChange={() => toggleSelect(s._id)}
+                      />
                     </td>
-                    <td>{row.subjectName || "N/A"}</td>
-                    <td>{row.program || "N/A"}</td>
-                    <td>{row.section || "N/A"}</td>
-                    <td>{row.yearLevel || "N/A"}</td>
-                    <td>{row.capacity || "N/A"}</td>
-                    <td>{row.instructor || "N/A"}</td>
-                    <td className="flex justify-center gap-2">
-                      <button className="btn btn-outline btn-xs">
-                        Record Grades
-                      </button>
-                      <button className="btn btn-outline btn-xs">
-                        View Course
-                      </button>
-                    </td>
+                    <td>{s.code}</td>
+                    <td>{s.subject_name}</td>
+                    <td>{s.department}</td>
+                    <td>{s.year_level}</td>
+                    <td>{s.units}</td>
+                    <td>{s.semester}</td>
                   </tr>
                 ))
-              ) : (
-                <tr>
-                  <td colSpan="8" className="text-center py-6 text-gray-500">
-                    No courses found.
-                  </td>
-                </tr>
               )}
             </tbody>
           </table>
@@ -208,6 +352,4 @@ const AdminEnrollment = () => {
       </div>
     </div>
   );
-};
-
-export default AdminEnrollment;
+}

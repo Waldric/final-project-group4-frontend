@@ -16,7 +16,7 @@ const ManageAccounts = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState([]); // Array for multi-select
   const [filterDept, setFilterDept] = useState("");
-  const [sortOption, setSortOption] = useState("");
+  const [sortOption, setSortOption] = useState("Account ID");
 
   const initialFormState = {
     _id: "",
@@ -27,6 +27,19 @@ const ManageAccounts = () => {
     lastname: "",
     user_type: "Student",
     department: "",
+    // Student fields
+    year_level: 1,
+    course: "",
+    birthday: "",
+    address: "",
+    phone: "",
+    mother: "",
+    father: "",
+    guardian_phone: "",
+    // Teacher fields
+    teacher_departments: [],
+    // Admin fields
+    admin_level: "",
   };
 
   const [form, setForm] = useState(initialFormState);
@@ -48,23 +61,18 @@ const ManageAccounts = () => {
     fetchAccounts();
   }, []);
 
-  // FILTERING + SORTING + SEARCH (Updated with debugging)
+  // FILTERING + SORTING + SEARCH
   useEffect(() => {
-    console.log("FilterType updated:", filterType); // Debug log
     let filtered = [...accounts];
 
     // Filter by user_type (multi-select)
     if (filterType.length > 0) {
       filtered = filtered.filter((a) => filterType.includes(a.user_type));
-      console.log("Filtered by user_type:", filtered); // Debug log
-    } else {
-      console.log("No user_type filter, using all accounts"); // Debug log
     }
 
     // Filter by department
     if (filterDept) {
       filtered = filtered.filter((a) => a.department === filterDept);
-      console.log("Filtered by department:", filtered); // Debug log
     }
 
     // Filter by search term
@@ -72,18 +80,24 @@ const ManageAccounts = () => {
       filtered = filtered.filter((a) =>
         `${a.firstname} ${a.lastname}`.toLowerCase().includes(searchTerm.toLowerCase())
       );
-      console.log("Filtered by search term:", filtered); // Debug log
     }
 
     // Sort by option
     if (sortOption === "Account ID") {
-      filtered.sort((a, b) => a.account_id.localeCompare(b.account_id));
+      filtered.sort((a, b) => {
+        const idA = a.account_id || "";
+        const idB = b.account_id || "";
+        return idA.localeCompare(idB);
+      });
     } else if (sortOption === "Name") {
-      filtered.sort((a, b) => a.firstname.localeCompare(b.firstname));
+      filtered.sort((a, b) => {
+        const nameA = a.firstname || "";
+        const nameB = b.firstname || "";
+        return nameA.localeCompare(nameB);
+      });
     }
 
     setFilteredAccounts(filtered);
-    console.log("Final filteredAccounts:", filteredAccounts); // Debug log
   }, [filterType, filterDept, searchTerm, sortOption, accounts]);
 
   const handleChange = (e) => {
@@ -97,20 +111,29 @@ const ManageAccounts = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate department for Students
+    if (!editMode && form.user_type === 'Student' && !form.department) {
+      alert('Please select a department for the student account.');
+      return;
+    }
+    
     try {
       if (editMode) {
         await api.put(`/accounts/${form._id}`, form);
-        alert("Account updated!");
+        alert("Account updated successfully!");
       } else {
+        // Create account - backend will handle Student/Teacher/Admin creation
         await api.post("/accounts", form);
-        alert("Account created!");
+        alert(`Account and ${form.user_type} profile created successfully!`);
       }
       setShowForm(false);
       resetForm();
       fetchAccounts();
     } catch (err) {
       console.error("Save error:", err);
-      alert(err.response?.data?.message || "Error saving account");
+      const errorMessage = err.response?.data?.message || err.response?.data?.error || "Error saving account";
+      alert(errorMessage);
     }
   };
 
@@ -121,14 +144,16 @@ const ManageAccounts = () => {
   };
 
   const handleDelete = async (acc) => {
-    if (window.confirm(`Delete account ${acc.firstname} ${acc.lastname}?`)) {
+    if (window.confirm(`Delete account for ${acc.firstname} ${acc.lastname}? This will also delete their ${acc.user_type} profile.`)) {
       try {
+        // Backend will handle cascading delete to Student/Teacher/Admin
         await api.delete(`/accounts/${acc._id}`);
-        alert("Account deleted!");
+        alert("Account and related profile deleted successfully!");
         fetchAccounts();
       } catch (err) {
         console.error("Delete error:", err);
-        alert("Error deleting account");
+        const errorMessage = err.response?.data?.message || "Error deleting account";
+        alert(errorMessage);
       }
     }
   };
@@ -159,6 +184,7 @@ const ManageAccounts = () => {
         <FiltersAndSearch
           filterDept={filterDept}
           setFilterDept={setFilterDept}
+          sortOption={sortOption}
           setSortOption={setSortOption}
           setSearchTerm={setSearchTerm}
         />

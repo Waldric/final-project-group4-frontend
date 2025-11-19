@@ -162,15 +162,7 @@ const Sidebar = ({ activeItem, setActiveItem, isOpen, setIsOpen, user }) => {
     ],
   };
 
-  // Original Code:  const menuItems = menuItemsByRole[user.user_type] || [];
-
-  const normalizedRole =
-    user?.user_type?.charAt(0).toUpperCase() +
-    user?.user_type?.slice(1).toLowerCase();
-  const menuItems = menuItemsByRole[normalizedRole] || [];
-
-// Code here was used for testing purposes
-
+  const menuItems = menuItemsByRole[user.user_type] || [];
 
   const handleMenuClick = (id, path) => {
     setActiveItem(id);

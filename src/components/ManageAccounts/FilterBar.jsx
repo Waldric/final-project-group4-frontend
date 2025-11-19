@@ -30,21 +30,29 @@ const FilterBar = ({
   };
 
   return (
-    <div className="flex flex-wrap justify-between mb-4 items-center [&>div]:m-5">
-      {/* Multi-select Filter Checkboxes (Fixed size with small gaps) */}
-      <form className="flex bg-[#F5F5F5] rounded-4xl p-1">
+    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+      {/* Filter Tabs */}
+      <div className="flex gap-2 bg-gray-100 p-1 rounded-full">
         {userTypes.map((type) => (
-          <input
+          <label
             key={type}
-            type="checkbox"
-            value={type}
-            aria-label={type}
-            className="btn w-16 h-10 rounded-4xl border-0 checked:bg-[#5603AD] checked:text-white"
-            checked={filterType.includes(type)}
-            onChange={updateFilter}
-          />
+            className={`px-5 py-2 rounded-full text-sm font-medium cursor-pointer transition-all duration-200 ${
+              filterType.includes(type)
+                ? "bg-[#5603AD] text-white shadow-md"
+                : "bg-transparent text-gray-700 hover:bg-gray-200"
+            }`}
+          >
+            <input
+              type="checkbox"
+              value={type}
+              className="hidden"
+              checked={filterType.includes(type)}
+              onChange={updateFilter}
+            />
+            {type}
+          </label>
         ))}
-      </form>
+      </div>
 
       {/* Add / Edit / Delete Buttons */}
       <div className="flex gap-2">
