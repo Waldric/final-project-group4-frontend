@@ -4,7 +4,7 @@ import { useSubjectContext } from "../../contexts/SubjectContext";
 import {
   ArrowLeftEndOnRectangleIcon,
   BarsArrowDownIcon,
-  PencilIcon,
+  PencilSquareIcon,
   PlusIcon,
   TrashIcon,
   XMarkIcon,
@@ -147,7 +147,7 @@ const ManageSubjects = () => {
                   className="btn bg-success"
                   onClick={() => setBtnStatus({ ...btnStats, editSub: true })}
                 >
-                  <PencilIcon className="w-5 x-5" />
+                  <PencilSquareIcon className="w-5 x-5" />
                   <span>Edit Subjects</span>
                 </button>
 
@@ -326,7 +326,7 @@ const ManageSubjects = () => {
                             }))
                           }
                         >
-                          <PencilIcon className="w-5 x-5" />
+                          <PencilSquareIcon className="w-5 x-5" />
                         </button>
                       </td>
                     ) : null}

@@ -3,13 +3,25 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import DashboardLayout from "./pages/DashboardLayout";
 import DashboardIndex from "./pages/DashboardIndex";
-import StudentProfileView from "./pages/student/StudentProfileView";
-import TeacherPageSample from "./pages/teacher/TeacherPageSample";
+import MyGrades from "./pages/student/MyGrades";
+import MyDisciplinaryRecords from "./pages/student/MyDisciplinaryRecords";
+import ManageGrades from "./pages/teacher/ManageGrades";
+import ManageDisciplinary from "./pages/teacher/ManageDisciplinary";
+import ManageAccounts from "./pages/admin/ManageAccounts";
 import ManageSubjects from "./pages/admin/ManageSubjects";
+import ProtectedRoute from "./components/ProtectedRoute";
+import StudentProfileView from "./pages/student/StudentProfileView";
+import TeacherClasses from "./pages/teacher/TeacherClasses";
+import GradeClassStudents from "./pages/teacher/GradeClassStudents";
+import TeacherPageSample from "./pages/teacher/TeacherPageSample";
 import TeacherProfileView from "./pages/teacher/TeacherProfileView";
 import AdminProfileView from "./pages/admin/AdminProfileView";
 import StudentRecords from "./pages/admin/StudentRecords";
 import StudentSchedulePage from "./pages/admin/StudentSchedulePage";
+import RecordGrades from "./pages/admin/RecordGrades";
+import StudentDashboard from "./pages/student/StudentDashboard";    
+
+
 
 export default function App() {
   return (
@@ -25,19 +37,32 @@ export default function App() {
           {/* Default dashboard route */}
           <Route index element={<DashboardIndex />} />
 
-          {/* Student pages */}
-          <Route path="student/profile" element={<StudentProfileView />} />
+          {/* Student routes */}
+          <Route element={<ProtectedRoute requiredRole="Student" />}>
+            <Route path="student/dashboard" element={<StudentDashboard />} />
+            <Route path="student/grades" element={<MyGrades />} />
+            <Route path="student/profile" element={<StudentProfileView />} />
+            <Route path="student/records" element={<MyDisciplinaryRecords />} />
+          </Route>
 
-          {/* Teacher pages */}
-          <Route path="teacher/classes" element={<TeacherPageSample />} />
-          <Route path="teacher/profile" element={<TeacherProfileView />} />
+          {/* Teacher routes */}
+          <Route element={<ProtectedRoute requiredRole="Teacher" />}>
+            <Route path="teacher/classes" element={<TeacherClasses />} />
+            <Route path="teacher/grades" element={<ManageGrades />} />
+            <Route path="/dashboard/teacher/grades/class/:teacherId/:subjectId" element={<GradeClassStudents />}/>
+            <Route path="teacher/disciplinary-records" element={<ManageDisciplinary />} />
+            <Route path="teacher/profile" element={<TeacherProfileView />} />
+          </Route>
 
-          {/* Admin pages */}
+          {/* Admin routes */}
+          <Route element={<ProtectedRoute requiredRole="Admin" />}>
           <Route path="admin/profile" element={<AdminProfileView />} />
           <Route path="admin/student-records" element={<StudentRecords />} />
-          <Route path="admin/subjects" element={<ManageSubjects />} />
+          <Route path="/dashboard/admin/record-grades/:studentId" element={<RecordGrades />} />
           <Route path="admin/student-schedule/:studentId" element={<StudentSchedulePage />} />  
-
+          <Route path="admin/manage-accounts" element={<ManageAccounts />} />
+          <Route path="admin/subjects" element={<ManageSubjects />} />
+          </Route>
         </Route>
 
         {/* Catch-all redirect */}

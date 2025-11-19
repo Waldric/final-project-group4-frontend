@@ -20,31 +20,31 @@ const Sidebar = ({ activeItem, setActiveItem, isOpen, setIsOpen, user }) => {
   const navigate = useNavigate();
 
   const menuItemsByRole = {
-    Student: [
-      {
-        id: "dashboard",
-        icon: HomeIcon,
-        label: "My Dashboard",
-        path: "/dashboard",
-      },
-      {
-        id: "student_grades",
-        icon: ChartBarIcon,
-        label: "My Grades",
-        path: "/dashboard/student/grades",
-      },
-      {
-        id: "student_schedule",
-        icon: CalendarDaysIcon,
-        label: "My Schedule",
-        path: "/dashboard/student/schedule",
-      },
-      {
-        id: "enrollment",
-        icon: AcademicCapIcon,
-        label: "Enrollment",
-        path: "/dashboard/student/enrollment",
-      },
+   Student: [
+   {
+    id: "dashboard",
+    icon: HomeIcon,
+    label: "My Dashboard",
+    path: "/dashboard/student/dashboard",
+  },
+  {
+    id: "student_grades",
+    icon: ChartBarIcon,
+    label: "My Grades",
+    path: "/dashboard/student/grades",
+  },
+  {
+    id: "student_schedule",
+    icon: CalendarDaysIcon,
+    label: "My Schedule",
+    path: "/dashboard/student/schedule",
+  },
+  {
+    id: "enrollment",
+    icon: AcademicCapIcon,
+    label: "Enrollment",
+    path: "/dashboard/student/enrollment",
+  },
       // {
       //   id: "tuition",
       //   icon: CreditCardIcon,
@@ -57,12 +57,12 @@ const Sidebar = ({ activeItem, setActiveItem, isOpen, setIsOpen, user }) => {
       //   label: "Payment History",
       //   path: "/dashboard/student/payment-history",
       // },
-      // {
-      //   id: "records",
-      //   icon: DocumentTextIcon,
-      //   label: "My Records",
-      //   path: "/dashboard/student/records",
-      // },
+      {
+        id: "records",
+        icon: DocumentTextIcon,
+        label: "My Records",
+        path: "/dashboard/student/records",
+      },
       // {
       //   id: "announcements",
       //   icon: MegaphoneIcon,
@@ -90,18 +90,18 @@ const Sidebar = ({ activeItem, setActiveItem, isOpen, setIsOpen, user }) => {
         label: "Student Grades",
         path: "/dashboard/teacher/grades",
       },
-      // {
-      //   id: "disciplinary_records",
-      //   icon: DocumentDuplicateIcon,
-      //   label: "Disciplinary Records",
-      //   path: "/dashboard/teacher/disciplinary-records",
-      // },
       {
-        id: "teacher_schedule",
-        icon: CalendarDaysIcon,
-        label: "Schedule",
-        path: "/dashboard/teacher/schedule",
+        id: "disciplinary_records",
+        icon: DocumentDuplicateIcon,
+        label: "Disciplinary Records",
+        path: "/dashboard/teacher/disciplinary-records",
       },
+      // {
+      //   id: "teacher_schedule",
+      //   icon: CalendarDaysIcon,
+      //   label: "Schedule",
+      //   path: "/dashboard/teacher/schedule",
+      // },
       // {
       //   id: "announcements",
       //   icon: MegaphoneIcon,
