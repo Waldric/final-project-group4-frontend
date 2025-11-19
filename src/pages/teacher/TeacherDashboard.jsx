@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import api from "../../api";
 import Header from "../../components/Header";
 import { useAuth } from "../../contexts/AuthContext";
-import { useTeacher } from "../../contexts/TeacherContext";
 import { useNavigate } from "react-router";
 
 const generateTimeSlots = (start = "7:00", end = "17:00") => {

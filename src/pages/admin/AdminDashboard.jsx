@@ -154,7 +154,8 @@ const AdminDashboard = () => {
                   return (
                   <div
                     key={key}
-                    className={`flex flex-col flex-1 rounded-2xl p-5 my-3 m-1 justify-between bg-[${meta.color}] shadow-xl`}
+                    className={`flex flex-col flex-1 rounded-2xl p-5 my-3 m-1 justify-between shadow-xl`}
+                    style={{backgroundColor: meta.color}}
                   >
                     <div className="flex items-center justify-center *:mx-5 m-3">
                       <Icon className="w-12 h-12 text-gray-100 drop-shadow" />

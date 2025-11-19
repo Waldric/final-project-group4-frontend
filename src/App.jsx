@@ -7,20 +7,17 @@ import {
   useLocation,
 } from "react-router-dom";
 import Login from "./pages/Login";
-import Test from "./pages/Test";
 import DashboardLayout from "./pages/DashboardLayout";
 import DashboardIndex from "./pages/DashboardIndex";
-import StudentPageSample from "./pages/student/StudentPageSample";
 import Mygrades from "./pages/student/MyGrades";
 import MyDisciplinaryRecords from "./pages/student/MyDisciplinaryRecords";
-import TeacherPageSample from "./pages/teacher/TeacherPageSample";
 import ManageGrades from "./pages/teacher/ManageGrades";
 import ManageDisciplinary from "./pages/teacher/ManageDisciplinary";
-import AdminPageSample from "./pages/admin/AdminPageSample";
 import ManageAccounts from "./pages/admin/ManageAccounts";
 import ManageSubjects from "./pages/admin/ManageSubjects";
 import MyGrades from "./pages/student/MyGrades";
 import TeacherClasses from "./pages/teacher/TeacherClasses";
+import TeacherRecords from "./pages/admin/TeacherRecords";
 
 export default function App() {
   return (
@@ -59,8 +56,8 @@ export default function App() {
             element={<ManageAccounts />}
           />
           <Route
-            path="/dashboard/admin/teacher-recordss"
-            element={<ManageAccounts />}
+            path="/dashboard/admin/teacher-records"
+            element={<TeacherRecords />}
           />
           <Route
             path="/dashboard/admin/subjects"
