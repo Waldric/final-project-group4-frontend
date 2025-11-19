@@ -261,13 +261,6 @@ const ManageSubjects = () => {
                   onChange={updateFilter("name")}
                 />
               </div>
-              {/* Sort */}
-              {/* <div>
-                <button className="btn">
-                  <BarsArrowDownIcon className="w-5 h-5" />
-                  <span>Sort By</span>
-                </button>
-              </div> */}
             </div>
           </div>
         </div>

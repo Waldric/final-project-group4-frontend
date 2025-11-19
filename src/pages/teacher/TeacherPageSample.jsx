@@ -13,7 +13,7 @@ const TeacherPageSample = () => {
       {/* Dashboard Content */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 min-h-96">
         <p className="text-gray-500 text-center py-12">
-          Dashboard content for teacher's classes goes here...
+          Dashboard asdfasdfsdfa for teacher's classes goes here...
         </p>
       </div>
     </div>
