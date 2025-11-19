@@ -20,31 +20,25 @@ const Sidebar = ({ activeItem, setActiveItem, isOpen, setIsOpen, user }) => {
   const navigate = useNavigate();
 
   const menuItemsByRole = {
-    Student: [
-      {
-        id: "dashboard",
-        icon: HomeIcon,
-        label: "My Dashboard",
-        path: "/dashboard",
-      },
-      {
-        id: "student_grades",
-        icon: ChartBarIcon,
-        label: "My Grades",
-        path: "/dashboard/student/grades",
-      },
-      {
-        id: "student_schedule",
-        icon: CalendarDaysIcon,
-        label: "My Schedule",
-        path: "/dashboard/student/schedule",
-      },
-      {
-        id: "enrollment",
-        icon: AcademicCapIcon,
-        label: "Enrollment",
-        path: "/dashboard/student/enrollment",
-      },
+   Student: [
+   {
+    id: "dashboard",
+    icon: HomeIcon,
+    label: "My Dashboard",
+    path: "/dashboard/student/dashboard",
+  },
+  {
+    id: "student_grades",
+    icon: ChartBarIcon,
+    label: "My Grades",
+    path: "/dashboard/student/grades",
+  },
+  {
+    id: "student_schedule",
+    icon: CalendarDaysIcon,
+    label: "My Schedule",
+    path: "/dashboard/student/schedule",
+  },
       // {
       //   id: "tuition",
       //   icon: CreditCardIcon,
@@ -63,12 +57,6 @@ const Sidebar = ({ activeItem, setActiveItem, isOpen, setIsOpen, user }) => {
         label: "My Records",
         path: "/dashboard/student/records",
       },
-      // {
-      //   id: "announcements",
-      //   icon: MegaphoneIcon,
-      //   label: "Announcements",
-      //   path: "/dashboard/student/announcements",
-      // },
     ],
 
     Teacher: [
@@ -96,18 +84,6 @@ const Sidebar = ({ activeItem, setActiveItem, isOpen, setIsOpen, user }) => {
         label: "Disciplinary Records",
         path: "/dashboard/teacher/disciplinary-records",
       },
-      {
-        id: "teacher_schedule",
-        icon: CalendarDaysIcon,
-        label: "Schedule",
-        path: "/dashboard/teacher/schedule",
-      },
-      // {
-      //   id: "announcements",
-      //   icon: MegaphoneIcon,
-      //   label: "Announcements",
-      //   path: "/dashboard/teacher/announcements",
-      // },
     ],
 
     Admin: [
@@ -153,12 +129,6 @@ const Sidebar = ({ activeItem, setActiveItem, isOpen, setIsOpen, user }) => {
       //   label: "Announcements",
       //   path: "/dashboard/admin/announcements",
       // },
-      {
-        id: "reports_and_analytics",
-        icon: ChartPieIcon,
-        label: "Reports & Analytics",
-        path: "/dashboard/admin/reports-analytics",
-      },
     ],
   };
 
@@ -212,19 +182,11 @@ const Sidebar = ({ activeItem, setActiveItem, isOpen, setIsOpen, user }) => {
                 <li key={item.id}>
                   <button
                     onClick={() => handleMenuClick(item.id, item.path)}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${
-                      isActive
-                        ? "text-[#5603AD] font-semibold"
-                        : "text-gray-700 hover:bg-gray-50"
-                    }`}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-gray-700 hover:bg-gray-50`}
                   >
                     <Icon className="w-5 h-5" />
                     <span
-                      className={`text-sm relative text-left ${
-                        isActive
-                          ? "after:absolute after:rounded-full after:transition-all after:duration-300 after:scale-x-100 after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-[#5603AD] text-[#5603AD]"
-                          : ""
-                      }`}
+                      className={`text-sm relative text-left inline-block w-auto whitespace-nowrap`}
                     >
                       {item.label}
                     </span>

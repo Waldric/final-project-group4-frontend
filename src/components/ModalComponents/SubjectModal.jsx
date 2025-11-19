@@ -1,8 +1,4 @@
-import {
-  ArrowRightStartOnRectangleIcon,
-  PencilIcon,
-  PlusIcon,
-} from "@heroicons/react/24/solid";
+import { ArrowRightStartOnRectangleIcon, PencilIcon, PlusIcon } from "@heroicons/react/24/solid";
 import { useModal } from "../../contexts/ModalContext";
 import { useSubjectContext } from "../../contexts/SubjectContext";
 import { useState } from "react";
@@ -11,8 +7,8 @@ import api from "../../api";
 const SubjectModal = () => {
   const { subMod, setSubMod } = useModal();
   const { dispatch, departmentsList, setFiltersParams } = useSubjectContext();
-  const { _id, code, subject_name, units, department, year_level, semester } =
-    subMod.data;
+  const { _id, code, subject_name, units, department, year_level, semester } = subMod.data || {};
+
   const [error, setError] = useState(null);
 
   const handleSubmit = async (e) => {

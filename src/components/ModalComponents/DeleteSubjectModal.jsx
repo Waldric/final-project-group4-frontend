@@ -25,9 +25,8 @@ const DeleteSubjectModal = () => {
 
       setDeleteSubj((prev) => ({
         status: false,
-        subjList: []
+        subjList: [],
       }));
-
     } catch (error) {
       console.log(error.response?.data?.error || "An error occurred");
       setError(error.response?.data?.message);
@@ -40,7 +39,7 @@ const DeleteSubjectModal = () => {
         <h3 className="font-bold text-lg flex w-auto justify-center">
           Delete Subjects
         </h3>
-        <div className="flex justify-center text-center my-5">
+        <div className="flex justify-center text-center my-5 text-gray-800 fon">
           <span className="">
             Are you sure you want to delete these subjects?
           </span>

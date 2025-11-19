@@ -1,6 +1,6 @@
 const Header = ({ location, subheader }) => {
   return (
-    <div className="mb-8">
+    <div className="mb-5">
       <div className="flex items-start gap-3">
         <div className="w-1.5 h-10 bg-[#5603AD] rounded-full"></div>
         <div>
