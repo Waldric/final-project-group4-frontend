@@ -138,7 +138,6 @@ const StudentsListView = ({
                     <div className="mask mask-squircle h-8 w-8">
                       <img
                         src={student.photo}
-                        alt="Avatar Tailwind CSS Component"
                       />
                     </div>
                     <span className="px-3">{student.firstname} {student.lastname}</span>

@@ -46,6 +46,7 @@ const TopNavbar = ({ user, setUser }) => {
   return (
     <header className="fixed top-0 right-0 left-54 bg-white border-b border-gray-200 z-10">
       <div className="flex items-center justify-end gap-4 px-6 py-3">
+
         {/* User Dropdown */}
         <div className="relative">
           <button
@@ -83,16 +84,6 @@ const TopNavbar = ({ user, setUser }) => {
                 }}
               >
                 Profile
-              </button>
-
-              <button
-                className="w-full text-left px-4 py-2 text-sm text-gray-800 hover:bg-gray-50"
-                onClick={() => {
-                  setShowDropdown(false);
-                  navigate("/settings");
-                }}
-              >
-                Settings
               </button>
 
               <div className="border-t border-gray-200 my-1"></div>

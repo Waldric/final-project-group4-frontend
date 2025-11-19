@@ -22,6 +22,18 @@ const StudentDashboard = () => {
     schedule: [],
   });
 
+  /* ------------------ NEW: Detect AY + Semester ------------------ */
+  const detectAcademicYear = (yearLevel) => {
+    if (!yearLevel) return 1;
+    return Math.min(Math.max(Number(yearLevel), 1), 4);
+  };
+
+  const detectSemester = () => {
+    const month = new Date().getMonth() + 1;
+    return month <= 6 ? 2 : 1;
+  };
+
+  /* ------------------ Fetch Student Dashboard Data ------------------ */
   useEffect(() => {
     if (!user?.id) return;
     fetchStudentData();
@@ -31,32 +43,34 @@ const StudentDashboard = () => {
     try {
       setStudentData((prev) => ({ ...prev, loading: true, error: null }));
 
-      // Get student info first to get student_number
+      // 1. Get student profile
       const studentRes = await api.get(`/students/byAccount/${user.id}`);
-
       const student = studentRes.data.data;
-
-      if (!student) {
-        throw new Error("Student not found");
-      }
+      if (!student) throw new Error("Student not found");
 
       const studentNumber = student.student_number;
+      const acadYear = detectAcademicYear(student.year_level);
+      const semester = detectSemester();
 
-      // Fetch all other data in parallel
+      // 2. Fetch grades + disciplinary
       const [gradesRes, disciplinaryRes, scheduleRes] = await Promise.all([
         api.get(`/grades?studentNumber=${studentNumber}`),
         api.get(`/disciplinary?student=${studentNumber}`),
-        api.get(`/schedules?student_number=${studentNumber}`),
+        api.get(`/schedules/student/${student._id}`, {
+          params: { acad_year: acadYear, semester },
+        }),
       ]);
 
       const grades = gradesRes.data.data || [];
       const disciplinary = disciplinaryRes.data.data || [];
-      const schedules = scheduleRes.data.data || [];
 
-      // Calculate academic data
-      const academicData = calculateAcademicData(grades, schedules);
+      // 3. Extract schedule
+      const scheduleData = scheduleRes.data?.data?.schedules || [];
 
-      // Format data for display
+      // 4. Compute academic data
+      const academicData = calculateAcademicData(grades, scheduleData);
+
+      // 5. Set state
       setStudentData({
         loading: false,
         error: null,
@@ -67,7 +81,7 @@ const StudentDashboard = () => {
             user.photo ||
             `https://api.dicebear.com/7.x/avataaars/svg?seed=${student.student_number}`,
           program: student.course || "N/A",
-          semester: getSemesterText(student.semester),
+          semester: `${student.school_year}, ${getSemesterText(student.semester)}`,
           yearLevel: getYearLevelText(student.year_level),
           schoolYear: student.school_year || "2025-2026",
         },
@@ -83,7 +97,7 @@ const StudentDashboard = () => {
             student.semester
           )}`,
         },
-        schedule: formatSchedules(schedules),
+        schedule: formatScheduleForDashboard(scheduleData),
       });
     } catch (err) {
       console.error("Error fetching student data:", err);
@@ -95,30 +109,18 @@ const StudentDashboard = () => {
     }
   };
 
-  const calculateAcademicData = (grades, schedules) => {
+  /* ------------------ Academic Calculations ------------------ */
+  const calculateAcademicData = (grades, scheduleEntries) => {
     let totalGradePoints = 0;
     let totalUnits = 0;
-    let gradedSubjects = 0;
 
-    // Calculate GPA from grades
     grades.forEach((gradeRecord) => {
       gradeRecord.grades?.forEach((g) => {
         if (g.percent && g.percent > 0) {
           const gpa = convertPercentToGPA(g.percent);
-          const units = 3; // Default units per subject
+          const units = 3;
           totalGradePoints += gpa * units;
           totalUnits += units;
-          gradedSubjects++;
-        }
-      });
-    });
-
-    // Count enrolled subjects from schedules
-    const enrolledSubjects = new Set();
-    schedules.forEach((schedule) => {
-      schedule.schedules?.forEach((s) => {
-        if (s.subject_ref?._id) {
-          enrolledSubjects.add(s.subject_ref._id);
         }
       });
     });
@@ -126,7 +128,7 @@ const StudentDashboard = () => {
     return {
       gpa: totalUnits > 0 ? (totalGradePoints / totalUnits).toFixed(2) : "0.00",
       totalUnits: totalUnits.toString(),
-      subjectsCount: enrolledSubjects.size.toString(),
+      subjectsCount: scheduleEntries.length.toString(),
     };
   };
 
@@ -142,72 +144,35 @@ const StudentDashboard = () => {
     return 1.0;
   };
 
-  const formatSchedules = (schedules) => {
-    const formattedSchedules = [];
-
-    schedules.forEach((schedule) => {
-      schedule.schedules?.forEach((s) => {
-        const subject = s.subject_ref;
-        const teacher = s.teacher_ref;
-
-        formattedSchedules.push({
-          code: subject?.subject_id || "N/A",
-          title: subject?.subject_name || "N/A",
-          days: formatDays(s.day),
-          schedule: formatTime(s.start_time, s.end_time),
-          room: s.room || "TBA",
-          section: s.section || "N/A",
-          teacher: teacher?.accounts_ref
-            ? `${teacher.accounts_ref.firstname} ${teacher.accounts_ref.lastname}`
-            : "N/A",
-          email: teacher?.email || "N/A",
-          units: subject?.units || "3",
-          status: "Enrolled",
-        });
-      });
-    });
-
-    return formattedSchedules;
+  /* ------------------ NEW Schedule Formatter ------------------ */
+  const formatScheduleForDashboard = (scheduleEntries) => {
+    return scheduleEntries.map((entry) => ({
+      code: entry.subject_ref?.code || entry.course_code || "N/A",
+      title: entry.subject_ref?.subject_name || "N/A",
+      day: entry.day || "TBA",
+      time: entry.time || "TBA",
+      room: entry.room || "TBA",
+      teacher: entry.teacher_ref?.account_ref
+        ? `${entry.teacher_ref.account_ref.firstname} ${entry.teacher_ref.account_ref.lastname}`
+        : "TBA",
+      units: entry.subject_ref?.units || "3",
+    }));
   };
 
-  const formatDays = (days) => {
-    if (!days || !Array.isArray(days)) return "TBA";
-    const dayMap = {
-      Monday: "M",
-      Tuesday: "T",
-      Wednesday: "W",
-      Thursday: "Th",
-      Friday: "F",
-      Saturday: "S",
-    };
-    return days.map((d) => dayMap[d] || d).join("/");
-  };
+  /* ------------------ Helpers ------------------ */
+  const getSemesterText = (sem) =>
+    ({ 1: "1st Semester", 2: "2nd Semester", 3: "Summer" }[sem] || "N/A");
 
-  const formatTime = (start, end) => {
-    if (!start || !end) return "TBA";
-    return `${start} - ${end}`;
-  };
-
-  const getSemesterText = (semester) => {
-    const semesterMap = {
-      1: "1st Semester",
-      2: "2nd Semester",
-      3: "Summer",
-    };
-    return semesterMap[semester] || "N/A";
-  };
-
-  const getYearLevelText = (year) => {
-    const yearMap = {
+  const getYearLevelText = (year) =>
+    ({
       1: "1st Year",
       2: "2nd Year",
       3: "3rd Year",
       4: "4th Year",
       5: "5th Year",
-    };
-    return yearMap[year] || "N/A";
-  };
+    }[year] || "N/A");
 
+  /* ------------------ Loading / Error UI ------------------ */
   if (studentData.loading) {
     return (
       <div className="flex-1 p-4 md:p-8">
@@ -239,14 +204,15 @@ const StudentDashboard = () => {
     );
   }
 
+  /* ------------------ MAIN UI ------------------ */
   return (
     <div className="flex-1 p-4 md:p-8">
       <Header location={headerLocation} subheader={headerSubtext} />
 
       <div className="p-4 md:p-6">
-        {/* FIRST ROW — Profile Left | Disciplinary + Academic Right */}
+        {/* FIRST ROW */}
         <div className="flex flex-col lg:flex-row gap-6 mb-6">
-          {/* ---- PROFILE SUMMARY ---- */}
+          {/* PROFILE SUMMARY */}
           <div className="flex-1 bg-white rounded-3xl shadow-sm border border-gray-200 p-6">
             <h2 className="text-lg font-semibold mb-4 text-center">
               Profile Summary
@@ -267,7 +233,6 @@ const StudentDashboard = () => {
               </p>
             </div>
 
-            {/* FIXED ALIGNED INFO ROWS */}
             <div className="mt-6 grid grid-cols-2 gap-y-3 px-40">
               <span className="text-gray-600 text-sm">Program</span>
               <span className="text-right font-medium text-sm">
@@ -291,17 +256,17 @@ const StudentDashboard = () => {
             </div>
 
             <button
-              className="btn btn-outline mt-6 w-80 normal-case border-gray-500 text-gray-700 mx-auto block "
+              className="btn btn-outline mt-6 w-80 normal-case border-gray-500 text-gray-700 mx-auto block"
               onClick={() => navigate("/dashboard/student/profile")}
             >
               Edit Profile
             </button>
           </div>
 
-          {/* ---- RIGHT COLUMN: DISCIPLINARY + ACADEMIC OVERVIEW ---- */}
+          {/* RIGHT COLUMN */}
           <div className="flex-1 flex flex-col gap-6">
-            {/* ---- DISCIPLINARY STATUS ---- */}
-            <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-6 lg:h-50">
+            {/* DISCIPLINARY STATUS */}
+            <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-6">
               <h2 className="text-lg font-semibold mb-4">
                 Disciplinary Status
               </h2>
@@ -311,8 +276,7 @@ const StudentDashboard = () => {
                   <ExclamationTriangleIcon className="w-5 h-5" />
                   <span className="text-sm">
                     You have {studentData.disciplinary.count} disciplinary
-                    record
-                    {studentData.disciplinary.count > 1 ? "s" : ""}
+                    record{studentData.disciplinary.count > 1 ? "s" : ""}
                   </span>
                 </div>
               ) : (
@@ -342,8 +306,8 @@ const StudentDashboard = () => {
               </button>
             </div>
 
-            {/* ---- ACADEMIC OVERVIEW ---- */}
-            <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-6 lg:h-60">
+            {/* ACADEMIC OVERVIEW */}
+            <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-6">
               <div className="flex justify-between items-center mb-10">
                 <h2 className="text-lg font-semibold">Academic Overview</h2>
                 <span className="text-sm text-gray-400">
@@ -377,61 +341,53 @@ const StudentDashboard = () => {
           </div>
         </div>
 
-        {/* ---- WEEKLY SCHEDULE ---- */}
+        {/* ------------------ WEEKLY SCHEDULE ------------------ */}
         <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-6">
           <h2 className="text-lg font-semibold mb-6">Your Schedule</h2>
 
-          <div className="overflow-x-auto">
-            <table className="table table-zebra w-full text-sm">
-              <thead className="text-gray-600">
-                <tr>
-                  <th>#</th>
-                  <th>Code</th>
-                  <th>Course Title</th>
-                  <th>Days</th>
-                  <th>Schedule</th>
-                  <th>Room</th>
-                  <th>Section</th>
-                  <th>Teacher</th>
-                  <th>Email</th>
-                  <th>Units</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
+          {studentData.schedule.length === 0 ? (
+            <div className="text-center text-gray-500 py-6">
+              No schedule found for your current academic year and semester.
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="table table-zebra w-full text-sm">
+                <thead className="text-gray-600">
+                  <tr>
+                    <th>#</th>
+                    <th>Code</th>
+                    <th>Course Title</th>
+                    <th>Day</th>
+                    <th>Time</th>
+                    <th>Room</th>
+                    <th>Teacher</th>
+                    <th>Units</th>
+                  </tr>
+                </thead>
 
-              <tbody>
-                {studentData.schedule.length === 0
-                  ? [...Array(9)].map((_, index) => (
-                      <tr key={index}>
-                        <td className="text-gray-400">{index + 1}</td>
-                        <td colSpan={10}></td>
-                      </tr>
-                    ))
-                  : studentData.schedule.map((item, idx) => (
-                      <tr key={idx}>
-                        <td>{idx + 1}</td>
-                        <td>{item.code}</td>
-                        <td>{item.title}</td>
-                        <td>{item.days}</td>
-                        <td>{item.schedule}</td>
-                        <td>{item.room}</td>
-                        <td>{item.section}</td>
-                        <td>{item.teacher}</td>
-                        <td className="text-blue-600">{item.email}</td>
-                        <td>{item.units}</td>
-                        <td>
-                          <span className="badge badge-success badge-sm">
-                            Enrolled
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-              </tbody>
-            </table>
-          </div>
+                <tbody>
+                  {studentData.schedule.map((item, idx) => (
+                    <tr key={idx}>
+                      <td>{idx + 1}</td>
+                      <td>{item.code}</td>
+                      <td>{item.title}</td>
+                      <td>{item.day}</td>
+                      <td>{item.time}</td>
+                      <td>{item.room}</td>
+                      <td>{item.teacher}</td>
+                      <td>{item.units}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
 
-          <button className="text-blue-600 text-sm underline mt-4 hover:text-blue-800">
-            View your weekly class schedule →
+          <button
+            className="text-blue-600 text-sm underline mt-4 hover:text-blue-800"
+            onClick={() => navigate("/dashboard/student/schedule")}
+          >
+            View your full schedule →
           </button>
         </div>
       </div>
