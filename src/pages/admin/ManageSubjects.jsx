@@ -313,7 +313,7 @@ const ManageSubjects = () => {
                             setSubMod(() => ({
                               status: true,
                               method: "Edit",
-                              data: { ...subject },
+                              data: subject,
                             }))
                           }
                         >

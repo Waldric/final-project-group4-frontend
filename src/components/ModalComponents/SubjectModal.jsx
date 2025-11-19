@@ -7,8 +7,8 @@ import api from "../../api";
 const SubjectModal = () => {
   const { subMod, setSubMod } = useModal();
   const { dispatch, departmentsList, setFiltersParams } = useSubjectContext();
-  const { _id, code, subject_name, units, department, year_level, semester } =
-    subMod.data;
+  const { _id, code, subject_name, units, department, year_level, semester } = subMod.data || {};
+
   const [error, setError] = useState(null);
 
   const handleSubmit = async (e) => {

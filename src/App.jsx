@@ -59,7 +59,6 @@ export default function App() {
             <Route path="admin/manage-accounts" element={<ManageAccounts />} />
             <Route path="admin/subjects" element={<ManageSubjects />} />
             <Route path="admin/teacher-records" element={<TeacherRecords />} />
-            <Route path="admin/teacher-records/:teacherId" element={<StudentSchedulePage />} />
           </Route>
         </Route>
 
