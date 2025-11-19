@@ -340,7 +340,7 @@ export default function StudentSchedulePage() {
             disabled={!canEdit || !schedule}
             onClick={handleOpenEdit}
           >
-            Edit
+            Edit Subject
           </button>
 
           <button
@@ -348,7 +348,7 @@ export default function StudentSchedulePage() {
             disabled={!canDelete || !schedule}
             onClick={handleOpenDelete}
           >
-            Delete
+            Delete Subject
           </button>
         </div>
       </div>
@@ -408,7 +408,7 @@ export default function StudentSchedulePage() {
 
               <tbody>
                 {filteredSchedules.map((entry) => (
-                  <tr key={entry.course_code}>
+                  <tr key={entry._id}>
                     <td>
                       <input
                         type="checkbox"

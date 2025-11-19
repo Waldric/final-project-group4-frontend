@@ -66,7 +66,7 @@ const Login = () => {
             alt="Medina Institute of Excellence Logo"
             className="mx-auto mb-2 w-80 -mt-4" // WJG: made it bigger and moved up
           />
-          <h1 className="text-4xl font-bold mb-3">Welcome!</h1>
+          <h1 className="text-4xl font-bold mb-4">Welcome!</h1>
           <p className="mb-4 text-gray-500 text-sm">
             Enter your email and password to access your account.
           </p>

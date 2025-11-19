@@ -96,7 +96,9 @@ export default function AssignTeacherModal({
   };
 
   const isClassFull =
-    slotInfo && typeof slotInfo.remaining === "number" && slotInfo.remaining <= 0;
+    slotInfo &&
+    typeof slotInfo.remaining === "number" &&
+    slotInfo.remaining <= 0;
 
   /* ------------------ SUBMIT HANDLER ------------------ */
   const handleSubmit = async (e) => {
@@ -159,9 +161,7 @@ export default function AssignTeacherModal({
         <h3 className="font-bold text-lg text-[#5603AD]">Assign Teacher</h3>
 
         {!entry ? (
-          <p className="text-center py-4 text-gray-500">
-            No subject selected.
-          </p>
+          <p className="text-center py-4 text-gray-500">No subject selected.</p>
         ) : (
           <>
             {/* Subject Info */}
@@ -175,12 +175,24 @@ export default function AssignTeacherModal({
             </div>
 
             {!hasRelevantTeachers ? (
-              <div className="alert alert-warning">
-                No teachers found for this subject.
-              </div>
+              <>
+                <div className="alert alert-warning">
+                  No teachers found for this subject.
+                </div>
+
+                <div className="modal-action">
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-sm border border-gray-400"
+                    onClick={onClose}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </>
             ) : (
+        
               <form onSubmit={handleSubmit} className="space-y-3">
-                {/* Teacher Dropdown */}
                 <div>
                   <label className="label-text font-semibold text-sm">
                     Teacher
@@ -199,7 +211,6 @@ export default function AssignTeacherModal({
                   </select>
                 </div>
 
-                {/* Auto-filled details */}
                 {(autoDay || autoTime || autoRoom) && (
                   <div className="bg-purple-50 p-3 rounded-lg border text-sm">
                     <p className="font-semibold text-purple-800 mb-2">
@@ -217,8 +228,8 @@ export default function AssignTeacherModal({
 
                     {slotInfo && (
                       <p className="mt-2">
-                        <strong>Slots:</strong>{" "}
-                        {slotInfo.num_students}/{slotInfo.slots}{" "}
+                        <strong>Slots:</strong> {slotInfo.num_students}/
+                        {slotInfo.slots}{" "}
                         {isClassFull && (
                           <span className="text-red-600 font-semibold">
                             (Full)
@@ -238,7 +249,7 @@ export default function AssignTeacherModal({
                 <div className="modal-action">
                   <button
                     type="button"
-                    className="btn btn-ghost btn-sm"
+                    className="btn btn-ghost btn-sm border border-gray-400"
                     onClick={onClose}
                   >
                     Cancel

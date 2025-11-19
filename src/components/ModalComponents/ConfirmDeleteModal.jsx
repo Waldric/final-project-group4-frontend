@@ -22,8 +22,8 @@ export default function ConfirmDeleteModal({
 
     setLoading(true);
     try {
-      await api.patch(`/schedules/${scheduleId}/delete`, {
-        courseCodes,
+      await api.delete(`/schedules/${scheduleId}/delete`, {
+        data: { courseCodes },
       });
 
       alert("Selected subjects deleted successfully.");
@@ -39,22 +39,20 @@ export default function ConfirmDeleteModal({
   return (
     <dialog className={`modal ${isOpen ? "modal-open" : ""}`}>
       <div className="modal-box max-w-md">
-        <h3 className="font-bold text-lg text-red-600 mb-2">
-          Confirm Delete
-        </h3>
-        <p className="text-sm text-gray-700 mb-3">
+        <h3 className="font-bold text-lg text-red-600 mb-2">Confirm Delete</h3>
+        <p className="text-md text-gray-800 mb-3 font-semibold">
           You are about to remove{" "}
-          <span className="font-semibold">{courseCodes.length}</span>{" "}
-          subject(s) from this student's schedule.
+          <span className="font-semibold">{courseCodes.length}</span> subject(s)
+          from this student's schedule.
         </p>
-        <p className="text-xs text-gray-500 mb-4">
-          This action cannot be undone. The subjects will be removed only from
+        <p className="text-sm text-gray-500 mb-4">
+          ❗This action cannot be undone. The subjects will be removed only from
           this student's schedule, not from the subject list.
         </p>
 
         <div className="modal-action">
           <button
-            className="btn btn-ghost btn-sm"
+            className="btn btn-ghost btn-sm border border-gray-300"
             onClick={onClose}
             disabled={loading}
           >

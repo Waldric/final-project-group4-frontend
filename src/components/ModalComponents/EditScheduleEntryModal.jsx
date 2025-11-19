@@ -55,9 +55,12 @@ export default function EditScheduleEntryModal({
       setLoading(true);
       setErrorMsg("");
 
-      const res = await api.patch(`/schedules/${scheduleId}/entry`, {
+      const res = await api.patch(`/schedules/${scheduleId}/update`, {
         course_code: entry.course_code,
-        updates: form,
+        updates: {
+          ...entry,
+          ...form,
+        },
         mode,
       });
 
@@ -76,7 +79,7 @@ export default function EditScheduleEntryModal({
         return;
       }
 
-      if (onUpdated) onUpdated(); 
+      if (onUpdated) onUpdated();
     } catch (err) {
       console.error("Edit schedule error:", err);
       setErrorMsg("Failed to update schedule entry.");
@@ -123,9 +126,7 @@ export default function EditScheduleEntryModal({
             {/* DROPDOWN for days */}
             <div className="form-control">
               <label className="label">
-                <span className="label-text text-sm font-medium">
-                  Day
-                </span>
+                <span className="label-text text-sm font-medium">Day</span>
               </label>
               <select
                 name="day"
@@ -148,9 +149,7 @@ export default function EditScheduleEntryModal({
             {/* TIME */}
             <div className="form-control">
               <label className="label">
-                <span className="label-text text-sm font-medium">
-                  Time
-                </span>
+                <span className="label-text text-sm font-medium">Time</span>
               </label>
               <input
                 type="text"
@@ -166,9 +165,7 @@ export default function EditScheduleEntryModal({
             {/* ROOM */}
             <div className="form-control">
               <label className="label">
-                <span className="label-text text-sm font-medium">
-                  Room
-                </span>
+                <span className="label-text text-sm font-medium">Room</span>
               </label>
               <input
                 type="text"

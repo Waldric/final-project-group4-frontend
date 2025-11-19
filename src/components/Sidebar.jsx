@@ -20,25 +20,37 @@ const Sidebar = ({ activeItem, setActiveItem, isOpen, setIsOpen, user }) => {
   const navigate = useNavigate();
 
   const menuItemsByRole = {
-    Student: [
-      {
-        id: "dashboard",
-        icon: HomeIcon,
-        label: "My Dashboard",
-        path: "/dashboard",
-      },
-      {
-        id: "student_grades",
-        icon: ChartBarIcon,
-        label: "My Grades",
-        path: "/dashboard/student/grades",
-      },
-      {
-        id: "student_schedule",
-        icon: CalendarDaysIcon,
-        label: "My Schedule",
-        path: "/dashboard/student/schedule",
-      },
+   Student: [
+   {
+    id: "dashboard",
+    icon: HomeIcon,
+    label: "My Dashboard",
+    path: "/dashboard/student/dashboard",
+  },
+  {
+    id: "student_grades",
+    icon: ChartBarIcon,
+    label: "My Grades",
+    path: "/dashboard/student/grades",
+  },
+  {
+    id: "student_schedule",
+    icon: CalendarDaysIcon,
+    label: "My Schedule",
+    path: "/dashboard/student/schedule",
+  },
+      // {
+      //   id: "tuition",
+      //   icon: CreditCardIcon,
+      //   label: "Tuition & Balance",
+      //   path: "/dashboard/student/tuition",
+      // },
+      // {
+      //   id: "payment",
+      //   icon: ReceiptRefundIcon,
+      //   label: "Payment History",
+      //   path: "/dashboard/student/payment-history",
+      // },
       {
         id: "records",
         icon: DocumentTextIcon,
@@ -105,6 +117,18 @@ const Sidebar = ({ activeItem, setActiveItem, isOpen, setIsOpen, user }) => {
         label: "Manage Subjects",
         path: "/dashboard/admin/subjects",
       },
+      // {
+      //   id: "billing_and_payments",
+      //   icon: CreditCardIcon,
+      //   label: "Billing & Payments",
+      //   path: "/dashboard/admin/billing-payments",
+      // },
+      // {
+      //   id: "announcements",
+      //   icon: MegaphoneIcon,
+      //   label: "Announcements",
+      //   path: "/dashboard/admin/announcements",
+      // },
     ],
   };
 
@@ -162,7 +186,7 @@ const Sidebar = ({ activeItem, setActiveItem, isOpen, setIsOpen, user }) => {
                   >
                     <Icon className="w-5 h-5" />
                     <span
-                      className={`text-sm relative text-left`}
+                      className={`text-sm relative text-left inline-block w-auto whitespace-nowrap`}
                     >
                       {item.label}
                     </span>
