@@ -13,9 +13,7 @@ import { useModal } from "../../contexts/ModalContext";
 
 const ManageSubjects = () => {
   const headerLocation = "Manage Subjects";
-  const headerSubtext = `View real-time statistics, recent activities, and key 
-                      updates across students, teachers, payments, and 
-                      announcements — all in one place.`;
+  const headerSubtext = `Edit your subjects here.`;
   const [btnStats, setBtnStatus] = useState({
     editSub: false,
     deleteSub: false,

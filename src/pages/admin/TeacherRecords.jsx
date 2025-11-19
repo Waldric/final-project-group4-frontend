@@ -7,9 +7,7 @@ import TeacherScheduleView from "./TeacherScheduleView";
 
 const TeacherRecords = () => {
   const headerLocation = "Teacher Records";
-  const headerSubtext = `View real-time statistics, recent activities, and key 
-                      updates across students, teachers, payments, and 
-                      announcements — all in one place.`;
+  const headerSubtext = `View the details and schedules of teachers in your database.`;
   const { filteredTeachers, loading, error } = useTeachersContext();
   const { departmentsList } = useSubjectContext();
   const [view, setView] = useState("list");

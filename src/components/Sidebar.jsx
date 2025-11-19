@@ -158,19 +158,11 @@ const Sidebar = ({ activeItem, setActiveItem, isOpen, setIsOpen, user }) => {
                 <li key={item.id}>
                   <button
                     onClick={() => handleMenuClick(item.id, item.path)}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${
-                      isActive
-                        ? "text-[#5603AD] font-semibold"
-                        : "text-gray-700 hover:bg-gray-50"
-                    }`}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-gray-700 hover:bg-gray-50`}
                   >
                     <Icon className="w-5 h-5" />
                     <span
-                      className={`text-sm relative text-left ${
-                        isActive
-                          ? "after:absolute after:rounded-full after:transition-all after:duration-300 after:scale-x-100 after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-[#5603AD] text-[#5603AD]"
-                          : ""
-                      }`}
+                      className={`text-sm relative text-left`}
                     >
                       {item.label}
                     </span>

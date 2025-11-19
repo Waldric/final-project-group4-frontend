@@ -25,19 +25,20 @@ export default function StudentRecords() {
 
   /* ---------------- Fetch Students From Backend ---------------- */
   useEffect(() => {
-    const fetchStudents = async () => {
-      try {
-        const res = await api.get("/students");
-        setStudents(res.data.data || []);
-        setLoading(false);
-      } catch (err) {
-        setErrMsg("Failed to load students");
-        setLoading(false);
-      }
-    };
-
     fetchStudents();
   }, []);
+
+  const fetchStudents = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get("/students");
+      setStudents(res.data.data || []);
+      setLoading(false);
+    } catch (err) {
+      setErrMsg("Failed to load students");
+      setLoading(false);
+    }
+  };
 
   /* ---------------- Department Toggle ---------------- */
   const toggleDept = (dept) =>
@@ -181,13 +182,13 @@ export default function StudentRecords() {
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
-                stroke-width="1.5"
+                strokeWidth="1.5"
                 stroke="currentColor"
-                class="size-6"
+                className="size-6"
               >
                 <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                   d="M12 4.5v15m7.5-7.5h-15"
                 />
               </svg>
@@ -196,10 +197,13 @@ export default function StudentRecords() {
           </div>
         </div>
 
-       {/* ---------------- Table ---------------- */}
+        {/* ---------------- Table ---------------- */}
         <div className="m-5 overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
           {loading ? (
-            <div className="text-center py-10 text-gray-500">Loading...</div>
+            <div className="text-center py-10 text-gray-500">
+              <span className="loading loading-spinner loading-lg"></span>
+              <p className="mt-4">Loading students...</p>
+            </div>
           ) : (
             <table className="table table-zebra w-full">
               <thead className="bg-gray-100 text-gray-600">
@@ -228,7 +232,7 @@ export default function StudentRecords() {
                         : `Year ${s.year_level}`;
 
                     return (
-                      <tr key={s._id} className="text-center">
+                      <tr key={s._id} className="text-center hover:bg-gray-50">
                         <td className="text-center">{s.student_number}</td>
 
                         <td className="font-medium text-center">
@@ -245,20 +249,59 @@ export default function StudentRecords() {
                         </td>
 
                         <td className="text-center">
-                          <button className="btn btn-sm mr-2">
-                            Record Grades
-                          </button>
+                          <div className="flex gap-2 justify-center">
+                            <button
+                              className="btn btn-sm bg-[#5603AD] text-white border-[#5603AD] hover:bg-[#3e047b]"
+                              onClick={() =>
+                                navigate(
+                                  `/dashboard/admin/record-grades/${s._id}`
+                                )
+                              }
+                              title="Record student grades"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth="1.5"
+                                stroke="currentColor"
+                                className="w-4 h-4"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
+                                />
+                              </svg>
+                              Record Grades
+                            </button>
 
-                          <button
-                            className="btn btn-sm btn-outline"
-                            onClick={() =>
-                              navigate(
-                                `/dashboard/admin/student-schedule/${s._id}`
-                              )
-                            }
-                          >
-                            View Schedule
-                          </button>
+                            <button
+                              className="btn btn-sm btn-outline"
+                              onClick={() =>
+                                navigate(
+                                  `/dashboard/admin/student-schedule/${s._id}`
+                                )
+                              }
+                              title="View student schedule"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth="1.5"
+                                stroke="currentColor"
+                                className="w-4 h-4"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"
+                                />
+                              </svg>
+                              View Schedule
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );
@@ -269,6 +312,7 @@ export default function StudentRecords() {
           )}
         </div>
 
+        {/* Add Student Modal */}
         <AddStudentModal
           isOpen={addOpen}
           onClose={() => setAddOpen(false)}
