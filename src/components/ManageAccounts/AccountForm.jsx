@@ -1,22 +1,62 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const AccountForm = ({ showForm, setShowForm, editMode, form, handleChange, handleSubmit, resetForm }) => {
   const departments = ["IS", "CCS", "COS", "COE", "System"];
-  const courses = ["BSIT", "BSCS", "BSIS", "BSCpE", "BSEE", "BSECE"];
   const adminLevels = ["sys_admin", "department_admin"];
   
   const [isEmailFocused, setIsEmailFocused] = useState(false);
   const [selectedTeacherDepts, setSelectedTeacherDepts] = useState([]);
 
+  // Get available courses based on department
+  const getAvailableCourses = () => {
+    if (form.user_type !== "Student") return [];
+    
+    switch (form.department) {
+      case "IS":
+        return ["Integrated School"];
+      case "CCS":
+        return ["BS in Computer Science"];
+      case "COE":
+        return [
+          "BS Mechanical Engineering",
+          "BS Computer Engineering", 
+          "BS Civil Engineering",
+          "BS Electrical Engineering"
+        ];
+      case "COS":
+        return [
+          "BS Chemistry",
+          "BS Physics",
+          "BS Environmental Science"
+        ];
+      default:
+        return [];
+    }
+  };
+
+  const availableCourses = getAvailableCourses();
+
   // Get available year levels based on department
   const getYearLevels = () => {
     if (form.user_type === "Student" && form.department === "IS") {
-      return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; // IS includes graduate levels
+      return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; // IS: Grade 1-12
     }
-    return [1, 2, 3, 4]; // Other departments only undergraduate
+    return [1, 2, 3, 4]; // Other departments: Year 1-4
   };
 
   const yearLevels = getYearLevels();
+  const isIS = form.user_type === "Student" && form.department === "IS";
+
+  // Reset course when department changes
+  useEffect(() => {
+    if (form.user_type === "Student" && form.department) {
+      const courses = getAvailableCourses();
+      // If current course is not in available courses, reset it
+      if (form.course && !courses.includes(form.course)) {
+        handleChange({ target: { name: "course", value: "" } });
+      }
+    }
+  }, [form.department]);
 
   // Handle changes to form fields with validations
   const handleFieldChange = (e) => {
@@ -41,16 +81,10 @@ const AccountForm = ({ showForm, setShowForm, editMode, form, handleChange, hand
       }
     }
 
-    // Reset year level if department changes for students
+    // Reset course and year level when department changes
     if (name === "department" && form.user_type === "Student") {
-      const currentYearLevel = form.year_level;
-      // If switching from IS to other dept and year level > 4, reset to 1
-      if (form.department === "IS" && value !== "IS" && currentYearLevel > 4) {
-        handleChange({ target: { name: "year_level", value: 1 } });
-        alert("Year level reset to 1 as the new department only supports years 1-4.");
-      }
-      // If switching to IS and year level not set, keep it
-      // The form will now show 1-12 options
+      handleChange({ target: { name: "course", value: "" } });
+      handleChange({ target: { name: "year_level", value: 1 } });
     }
 
     handleChange(e);
@@ -105,9 +139,13 @@ const AccountForm = ({ showForm, setShowForm, editMode, form, handleChange, hand
         alert("Please select a department for the student.");
         return;
       }
+      if (!form.course) {
+        alert("Please select a course for the student.");
+        return;
+      }
       roleData = {
         year_level: form.year_level || 1,
-        course: form.course || "TBD",
+        course: form.course,
         birthday: form.birthday || null,
         address: form.address || "",
         phone: form.phone || "",
@@ -137,9 +175,6 @@ const AccountForm = ({ showForm, setShowForm, editMode, form, handleChange, hand
     const submitData = { ...form, ...roleData };
     handleSubmit(e, submitData);
   };
-
-  // Check if department is required
-  const isDepartmentRequired = !editMode && (form.user_type === "Student" || form.user_type === "Admin");
 
   return (
     <>
@@ -245,7 +280,7 @@ const AccountForm = ({ showForm, setShowForm, editMode, form, handleChange, hand
                       name="department"
                       className="select select-bordered w-full"
                       value={form.department}
-                      onChange={handleChange}
+                      onChange={handleFieldChange}
                       required
                     >
                       <option value="">Select Department *</option>
@@ -255,39 +290,38 @@ const AccountForm = ({ showForm, setShowForm, editMode, form, handleChange, hand
                     </select>
                   </div>
 
-                  {/* Course */}
-                  <select
-                    name="course"
-                    className="select select-bordered w-full"
-                    value={form.course || ""}
-                    onChange={handleChange}
-                    required
-                  >
-                    <option value="">Select Course *</option>
-                    {courses.map((c) => (
-                      <option key={c} value={c}>{c}</option>
-                    ))}
-                  </select>
+                  {/* Course - Only show if department is selected */}
+                  {form.department && (
+                    <select
+                      name="course"
+                      className="select select-bordered w-full"
+                      value={form.course || ""}
+                      onChange={handleChange}
+                      required
+                    >
+                      <option value="">Select Course *</option>
+                      {availableCourses.map((c) => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                  )}
 
-                  {/* Year Level */}
-                  <select
-                    name="year_level"
-                    className="select select-bordered w-full"
-                    value={form.year_level || 1}
-                    onChange={handleChange}
-                    required
-                  >
-                    <option value="">Select Year Level *</option>
-                    {yearLevels.map((y) => (
-                      <option key={y} value={y}>
-                        {y <= 4 ? `Year ${y}` : `Graduate Year ${y - 4}`}
-                      </option>
-                    ))}
-                  </select>
-                  {form.department === "IS" && (
-                    <p className="text-xs text-gray-500">
-                      IS department supports years 1-12 (including graduate levels)
-                    </p>
+                  {/* Year/Grade Level - Only show if department is selected */}
+                  {form.department && (
+                    <select
+                      name="year_level"
+                      className="select select-bordered w-full"
+                      value={form.year_level || 1}
+                      onChange={handleChange}
+                      required
+                    >
+                      <option value="">Select {isIS ? "Grade" : "Year"} Level *</option>
+                      {yearLevels.map((y) => (
+                        <option key={y} value={y}>
+                          {isIS ? `Grade ${y}` : `Year ${y}`}
+                        </option>
+                      ))}
+                    </select>
                   )}
 
                   {/* Birthday */}
@@ -359,17 +393,6 @@ const AccountForm = ({ showForm, setShowForm, editMode, form, handleChange, hand
                     <h4 className="font-semibold text-sm mb-2">Teacher Information</h4>
                   </div>
 
-                  {/* Teacher UID */}
-                  <input
-                    type="text"
-                    name="teacher_uid"
-                    className="input input-bordered w-full"
-                    placeholder="Teacher UID *"
-                    required
-                    value={form.teacher_uid || ""}
-                    onChange={handleChange}
-                  />
-
                   {/* Multiple Department Selection */}
                   <div className="border rounded-lg p-3">
                     <label className="block text-sm font-medium mb-2">
@@ -398,17 +421,6 @@ const AccountForm = ({ showForm, setShowForm, editMode, form, handleChange, hand
                   <div className="border-t pt-3 mt-3">
                     <h4 className="font-semibold text-sm mb-2">Admin Information</h4>
                   </div>
-
-                  {/* Admin ID */}
-                  <input
-                    type="text"
-                    name="admin_id"
-                    className="input input-bordered w-full"
-                    placeholder="Admin ID *"
-                    required
-                    value={form.admin_id || ""}
-                    onChange={handleChange}
-                  />
 
                   {/* Department */}
                   <div>
