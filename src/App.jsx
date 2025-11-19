@@ -11,28 +11,25 @@ import ManageAccounts from "./pages/admin/ManageAccounts";
 import ManageSubjects from "./pages/admin/ManageSubjects";
 import ProtectedRoute from "./components/ProtectedRoute";
 import StudentProfileView from "./pages/student/StudentProfileView";
-import AdminEnrollment from "./pages/admin/AdminEnrollment";
 import TeacherClasses from "./pages/teacher/TeacherClasses";
 import GradeClassStudents from "./pages/teacher/GradeClassStudents";
-import TeacherPageSample from "./pages/teacher/TeacherPageSample";
+import TeacherRecords from "./pages/admin/TeacherRecords";
 import TeacherProfileView from "./pages/teacher/TeacherProfileView";
 import AdminProfileView from "./pages/admin/AdminProfileView";
 import StudentRecords from "./pages/admin/StudentRecords";
 import StudentSchedulePage from "./pages/admin/StudentSchedulePage";
 import RecordGrades from "./pages/admin/RecordGrades";
-
+import StudentViewSchedule from "./pages/student/StudentViewSchedule";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-
         {/* Login Page */}
         <Route path="/" element={<Login />} />
 
         {/* Dashboard Layout with nested routes */}
         <Route path="/dashboard" element={<DashboardLayout />}>
-
           {/* Default dashboard route */}
           <Route index element={<DashboardIndex />} />
 
@@ -41,6 +38,7 @@ export default function App() {
             <Route path="student/grades" element={<MyGrades />} />
             <Route path="student/profile" element={<StudentProfileView />} />
             <Route path="student/records" element={<MyDisciplinaryRecords />} />
+            <Route path="student/schedule" element={<StudentViewSchedule />} />
           </Route>
 
           {/* Teacher routes */}
@@ -48,25 +46,25 @@ export default function App() {
             <Route path="teacher/classes" element={<TeacherClasses />} />
             <Route path="teacher/grades" element={<ManageGrades />} />
             <Route path="/dashboard/teacher/grades/class/:teacherId/:subjectId" element={<GradeClassStudents />}/>
-            <Route path="teacher/disciplinary-records" element={<ManageDisciplinary />} />
+            <Route path="teacher/disciplinary-records" element={<ManageDisciplinary />}/>
             <Route path="teacher/profile" element={<TeacherProfileView />} />
           </Route>
 
           {/* Admin routes */}
           <Route element={<ProtectedRoute requiredRole="Admin" />}>
-  
             <Route path="admin/profile" element={<AdminProfileView />} />
-          <Route path="admin/student-records" element={<StudentRecords />} />
-          <Route path="/dashboard/admin/record-grades/:studentId" element={<RecordGrades />} />
-          <Route path="admin/student-schedule/:studentId" element={<StudentSchedulePage />} />  
+            <Route path="admin/student-records" element={<StudentRecords />} />
+            <Route path="/dashboard/admin/record-grades/:studentId" element={<RecordGrades />}/>
+            <Route path="admin/student-schedule/:studentId" element={<StudentSchedulePage />}/>
             <Route path="admin/manage-accounts" element={<ManageAccounts />} />
             <Route path="admin/subjects" element={<ManageSubjects />} />
+            <Route path="admin/teacher-records" element={<TeacherRecords />} />
+            <Route path="admin/teacher-records/:teacherId" element={<StudentSchedulePage />} />
           </Route>
         </Route>
 
         {/* Catch-all redirect */}
         <Route path="*" element={<Navigate to="/" replace />} />
-
       </Routes>
     </BrowserRouter>
   );

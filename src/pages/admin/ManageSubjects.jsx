@@ -13,9 +13,7 @@ import { useModal } from "../../contexts/ModalContext";
 
 const ManageSubjects = () => {
   const headerLocation = "Manage Subjects";
-  const headerSubtext = `View real-time statistics, recent activities, and key 
-                      updates across students, teachers, payments, and 
-                      announcements — all in one place.`;
+  const headerSubtext = `Edit your subjects here.`;
   const [btnStats, setBtnStatus] = useState({
     editSub: false,
     deleteSub: false,
@@ -261,13 +259,6 @@ const ManageSubjects = () => {
                   onChange={updateFilter("name")}
                 />
               </div>
-              {/* Sort */}
-              {/* <div>
-                <button className="btn">
-                  <BarsArrowDownIcon className="w-5 h-5" />
-                  <span>Sort By</span>
-                </button>
-              </div> */}
             </div>
           </div>
         </div>

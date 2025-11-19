@@ -40,35 +40,11 @@ const Sidebar = ({ activeItem, setActiveItem, isOpen, setIsOpen, user }) => {
         path: "/dashboard/student/schedule",
       },
       {
-        id: "enrollment",
-        icon: AcademicCapIcon,
-        label: "Enrollment",
-        path: "/dashboard/student/enrollment",
-      },
-      // {
-      //   id: "tuition",
-      //   icon: CreditCardIcon,
-      //   label: "Tuition & Balance",
-      //   path: "/dashboard/student/tuition",
-      // },
-      // {
-      //   id: "payment",
-      //   icon: ReceiptRefundIcon,
-      //   label: "Payment History",
-      //   path: "/dashboard/student/payment-history",
-      // },
-      {
         id: "records",
         icon: DocumentTextIcon,
         label: "My Records",
         path: "/dashboard/student/records",
       },
-      // {
-      //   id: "announcements",
-      //   icon: MegaphoneIcon,
-      //   label: "Announcements",
-      //   path: "/dashboard/student/announcements",
-      // },
     ],
 
     Teacher: [
@@ -96,18 +72,6 @@ const Sidebar = ({ activeItem, setActiveItem, isOpen, setIsOpen, user }) => {
         label: "Disciplinary Records",
         path: "/dashboard/teacher/disciplinary-records",
       },
-      // {
-      //   id: "teacher_schedule",
-      //   icon: CalendarDaysIcon,
-      //   label: "Schedule",
-      //   path: "/dashboard/teacher/schedule",
-      // },
-      // {
-      //   id: "announcements",
-      //   icon: MegaphoneIcon,
-      //   label: "Announcements",
-      //   path: "/dashboard/teacher/announcements",
-      // },
     ],
 
     Admin: [
@@ -140,24 +104,6 @@ const Sidebar = ({ activeItem, setActiveItem, isOpen, setIsOpen, user }) => {
         icon: BookOpenIcon,
         label: "Manage Subjects",
         path: "/dashboard/admin/subjects",
-      },
-      // {
-      //   id: "billing_and_payments",
-      //   icon: CreditCardIcon,
-      //   label: "Billing & Payments",
-      //   path: "/dashboard/admin/billing-payments",
-      // },
-      // {
-      //   id: "announcements",
-      //   icon: MegaphoneIcon,
-      //   label: "Announcements",
-      //   path: "/dashboard/admin/announcements",
-      // },
-      {
-        id: "reports_and_analytics",
-        icon: ChartPieIcon,
-        label: "Reports & Analytics",
-        path: "/dashboard/admin/reports-analytics",
       },
     ],
   };
@@ -212,19 +158,11 @@ const Sidebar = ({ activeItem, setActiveItem, isOpen, setIsOpen, user }) => {
                 <li key={item.id}>
                   <button
                     onClick={() => handleMenuClick(item.id, item.path)}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${
-                      isActive
-                        ? "text-[#5603AD] font-semibold"
-                        : "text-gray-700 hover:bg-gray-50"
-                    }`}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-gray-700 hover:bg-gray-50`}
                   >
                     <Icon className="w-5 h-5" />
                     <span
-                      className={`text-sm relative text-left ${
-                        isActive
-                          ? "after:absolute after:rounded-full after:transition-all after:duration-300 after:scale-x-100 after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-[#5603AD] text-[#5603AD]"
-                          : ""
-                      }`}
+                      className={`text-sm relative text-left`}
                     >
                       {item.label}
                     </span>
