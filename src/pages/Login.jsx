@@ -134,17 +134,6 @@ const Login = () => {
             </button>
           </form>
 
-          <p className="mt-4 text-sm text-gray-500">
-            Don’t have an account?{" "}
-            <button
-              type="button"
-              onClick={() => navigate("/register")}
-              className="link link-primary"
-            >
-              Sign Up
-            </button>
-          </p>
-
           <p className="text-xs text-gray-400 mt-6">
             Group 4 Final Project © 2025
           </p>

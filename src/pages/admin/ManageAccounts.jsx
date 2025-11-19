@@ -127,10 +127,15 @@ const ManageAccounts = () => {
   };
 
   const handleEdit = (acc) => {
-    setForm(acc);
-    setEditMode(true);
-    setShowForm(true);
+  const fixed = {
+    ...acc,
+    teacher_department: acc.teacher_departments?.[0] || "",
   };
+
+  setForm(fixed);
+  setEditMode(true);
+  setShowForm(true);
+};
 
   const handleDelete = async (acc) => {
     if (window.confirm(`Delete account for ${acc.firstname} ${acc.lastname}? This will also delete their ${acc.user_type} profile.`)) {
