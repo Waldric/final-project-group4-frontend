@@ -1,6 +1,16 @@
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
 
 const AccountsTable = ({ filteredAccounts, editMode, deleteMode, handleEdit, handleDelete, loading }) => {
+  // Helper function to display department(s) based on user type
+  const displayDepartment = (acc) => {
+    if (acc.user_type === "Teacher" && acc.teacher_departments && acc.teacher_departments.length > 0) {
+      // For teachers, show all departments as comma-separated list
+      return acc.teacher_departments.join(", ");
+    }
+    // For Students and Admins, show single department
+    return acc.department || "—";
+  };
+
   return (
     <>
       {loading ? (
@@ -28,7 +38,7 @@ const AccountsTable = ({ filteredAccounts, editMode, deleteMode, handleEdit, han
                   </td>
                   <td>{acc.email}</td>
                   <td>{acc.user_type}</td>
-                  <td>{acc.department || "—"}</td>
+                  <td>{displayDepartment(acc)}</td>
                   {editMode && (
                     <td>
                       <button

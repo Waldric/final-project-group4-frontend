@@ -16,31 +16,34 @@ const ManageAccounts = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState([]); // Array for multi-select
   const [filterDept, setFilterDept] = useState("");
-  const [sortOption, setSortOption] = useState("Account ID");
+  const [sortOption, setSortOption] = useState("");
 
   const initialFormState = {
-    _id: "",
-    account_id: "",
-    email: "",
-    password: "",
-    firstname: "",
-    lastname: "",
-    user_type: "Student",
-    department: "",
-    // Student fields
-    year_level: 1,
-    course: "",
-    birthday: "",
-    address: "",
-    phone: "",
-    mother: "",
-    father: "",
-    guardian_phone: "",
-    // Teacher fields
-    teacher_departments: [],
-    // Admin fields
-    admin_level: "",
-  };
+  _id: "",
+  account_id: "",
+  email: "",
+  password: "",
+  firstname: "",
+  lastname: "",
+  user_type: "Student",
+  department: "",
+  // Student fields
+  student_number: "",
+  year_level: 1,
+  course: "",
+  birthday: "",
+  address: "",
+  phone: "",
+  mother: "",
+  father: "",
+  guardian_phone: "",
+  // Teacher fields
+  teacher_uid: "",
+  teacher_departments: [],
+  // Admin fields
+  admin_id: "",
+  admin_level: "",
+};
 
   const [form, setForm] = useState(initialFormState);
 
@@ -84,17 +87,9 @@ const ManageAccounts = () => {
 
     // Sort by option
     if (sortOption === "Account ID") {
-      filtered.sort((a, b) => {
-        const idA = a.account_id || "";
-        const idB = b.account_id || "";
-        return idA.localeCompare(idB);
-      });
+      filtered.sort((a, b) => a.account_id.localeCompare(b.account_id));
     } else if (sortOption === "Name") {
-      filtered.sort((a, b) => {
-        const nameA = a.firstname || "";
-        const nameB = b.firstname || "";
-        return nameA.localeCompare(nameB);
-      });
+      filtered.sort((a, b) => a.firstname.localeCompare(b.firstname));
     }
 
     setFilteredAccounts(filtered);
@@ -109,22 +104,16 @@ const ManageAccounts = () => {
     setEditMode(false);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e, submitData) => {
     e.preventDefault();
-    
-    // Validate department for Students
-    if (!editMode && form.user_type === 'Student' && !form.department) {
-      alert('Please select a department for the student account.');
-      return;
-    }
     
     try {
       if (editMode) {
-        await api.put(`/accounts/${form._id}`, form);
+        await api.put(`/accounts/${form._id}`, submitData || form);
         alert("Account updated successfully!");
       } else {
         // Create account - backend will handle Student/Teacher/Admin creation
-        await api.post("/accounts", form);
+        await api.post("/accounts", submitData || form);
         alert(`Account and ${form.user_type} profile created successfully!`);
       }
       setShowForm(false);
@@ -184,7 +173,6 @@ const ManageAccounts = () => {
         <FiltersAndSearch
           filterDept={filterDept}
           setFilterDept={setFilterDept}
-          sortOption={sortOption}
           setSortOption={setSortOption}
           setSearchTerm={setSearchTerm}
         />
