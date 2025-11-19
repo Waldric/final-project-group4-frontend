@@ -57,7 +57,6 @@ const StudentProfileView = () => {
   // ---------- NEW: HANDLE SAVE ----------
   const handleSave = async (updatedFields) => {
     try {
-      // Update account fields if needed
       if (updatedFields.firstname || updatedFields.email) {
         await api.put(`/accounts/${user.id}`, updatedFields);
 

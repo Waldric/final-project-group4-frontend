@@ -81,7 +81,7 @@ const StudentDashboard = () => {
             user.photo ||
             `https://api.dicebear.com/7.x/avataaars/svg?seed=${student.student_number}`,
           program: student.course || "N/A",
-          semester: `${student.school_year}, ${getSemesterText(student.semester)}`,
+          semester: `${getSemesterText(semester)}`,
           yearLevel: getYearLevelText(student.year_level),
           schoolYear: student.school_year || "2025-2026",
         },
@@ -93,9 +93,7 @@ const StudentDashboard = () => {
           currentGPA: academicData.gpa,
           totalUnits: academicData.totalUnits,
           subjectsEnrolled: academicData.subjectsCount,
-          semester: `${student.school_year || "2025-2026"}, ${getSemesterText(
-            student.semester
-          )}`,
+          semester: `${student.school_year || "2025-2026"}, ${getSemesterText(semester)}`,
         },
         schedule: formatScheduleForDashboard(scheduleData),
       });
@@ -307,8 +305,8 @@ const StudentDashboard = () => {
             </div>
 
             {/* ACADEMIC OVERVIEW */}
-            <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-6">
-              <div className="flex justify-between items-center mb-10">
+            <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-6 lg:h-65">
+              <div className="flex justify-between items-center mb-12">
                 <h2 className="text-lg font-semibold">Academic Overview</h2>
                 <span className="text-sm text-gray-400">
                   {studentData.academic.semester}
