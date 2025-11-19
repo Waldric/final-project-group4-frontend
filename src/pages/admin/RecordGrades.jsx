@@ -33,9 +33,11 @@ export default function RecordGrades() {
       const studentData = studentRes.data.data;
       setStudent(studentData);
 
-      // Fetch all teachers
+      // Fetch all teachers with populated account_ref
       const teachersRes = await api.get("/teachers");
-      setTeachers(teachersRes.data.data || []);
+      const teachersData = teachersRes.data.data || [];
+      console.log("Fetched teachers:", teachersData); // Debug log
+      setTeachers(teachersData);
 
       // Fetch student's grades
       const gradesRes = await api.get(`/grades?studentId=${studentId}`);
@@ -66,12 +68,30 @@ export default function RecordGrades() {
       }
 
       // Initialize empty grades for subjects without grades
+        const getTeachersForSubjectLocal = (subjectId, semester) => {
+        return teachersData.filter((teacher) =>
+          teacher.subjects?.some((sub) => {
+            const subjDoc = sub.subject_id || sub.subject;
+            const subjId = subjDoc?._id ? String(subjDoc._id) : String(subjDoc);
+            const idMatch = subjId === String(subjectId);
+
+            const semesterMatch =
+              subjDoc?.semester != null ? subjDoc.semester === semester : true;
+
+            return idMatch && semesterMatch;
+          })
+        );
+      };
+
+      // Initialize empty grades for subjects without grades
       filteredSubjects.forEach((subject) => {
         if (!gradesMap[subject._id]) {
-          // Find teacher who teaches this subject
-          const teacherForSubject = teachersRes.data.data.find((teacher) =>
-            teacher.subjects?.some((s) => s.subject_id?._id === subject._id)
+          const teachersForSubject = getTeachersForSubjectLocal(
+            subject._id,
+            subject.semester
           );
+
+          const teacherForSubject = teachersForSubject[0] || null;
 
           gradesMap[subject._id] = {
             percent: "",
@@ -81,10 +101,11 @@ export default function RecordGrades() {
         }
       });
 
+
       setEditingGrades(gradesMap);
       setLoading(false);
     } catch (err) {
-      console.error(err);
+      console.error("Error fetching data:", err);
       setError("Failed to load student data");
       setLoading(false);
     }
@@ -147,29 +168,32 @@ export default function RecordGrades() {
               percent: gradeData.percent,
             }
           );
+          setSuccess("Grade updated successfully!");
         } else {
           // Add new subject grade to existing record
+          const updatedGrades = [
+            ...gradeRecord.grades,
+            {
+              teacher_ref: gradeData.teacher_ref,
+              subject_ref: subjectId,
+              percent: gradeData.percent,
+              graded_date: new Date(),
+            },
+          ];
+
           await api.put(`/grades/${gradeRecord._id}`, {
-            ...gradeRecord,
-            grades: [
-              ...gradeRecord.grades,
-              {
-                teacher_ref: gradeData.teacher_ref,
-                subject_ref: subjectId,
-                percent: gradeData.percent,
-                graded_date: new Date(),
-              },
-            ],
+            grades: updatedGrades,
           });
+          setSuccess("Grade added successfully!");
         }
       } else {
         // Create new grade record for student
-        const currentYear = new Date().getFullYear();
-        const currentMonth = new Date().getMonth();
-        
-        // Determine semester: Jan-May = 2, Jun-Oct = 1, Nov-Dec = 2 (next year prep)
-        const semester = currentMonth >= 5 && currentMonth <= 9 ? 1 : 2;
+        const subject = subjects.find((s) => String(s._id) === String(subjectId));
 
+        // Use the subject's semester; fallback to 1 if not found
+        const semester = subject?.semester ?? 1;
+
+        // You can keep your acad_year logic as is, or refine later
         await api.post("/grades", {
           student_ref: studentId,
           student_number: student.student_number,
@@ -184,15 +208,31 @@ export default function RecordGrades() {
             },
           ],
         });
+        setSuccess("Grade record created successfully!");
+        
+        await api.post("/grades", {
+          student_ref: studentId,
+          student_number: student.student_number,
+          semester: semester,
+          acad_year: `${currentYear}-${currentYear + 1}`,
+          grades: [
+            {
+              teacher_ref: gradeData.teacher_ref,
+              subject_ref: subjectId,
+              percent: gradeData.percent,
+              graded_date: new Date(),
+            },
+          ],
+        });
+        setSuccess("Grade record created successfully!");
       }
 
-      setSuccess("Grade saved successfully!");
       await fetchData();
       setSaving(false);
 
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
-      console.error(err);
+      console.error("Error saving grade:", err);
       setError(err.response?.data?.message || "Failed to save grade");
       setSaving(false);
     }
@@ -222,12 +262,26 @@ export default function RecordGrades() {
     );
   };
 
-  // Get teachers who can teach a specific subject
-  const getTeachersForSubject = (subjectId) => {
+    // Return only teachers who are actually assigned to this subject (and semester)
+  const getTeachersForSubject = (subjectId, semester) => {
     return teachers.filter((teacher) =>
-      teacher.subjects?.some((s) => s.subject_id?._id === subjectId)
+      teacher.subjects?.some((sub) => {
+        const subjDoc = sub.subject_id || sub.subject; // populated or plain id
+
+        const subjId = subjDoc?._id ? String(subjDoc._id) : String(subjDoc);
+        const idMatch = subjId === String(subjectId);
+
+        // If subject is populated, also match semester
+        const semesterMatch =
+          subjDoc?.semester != null ? subjDoc.semester === semester : true;
+
+        return idMatch && semesterMatch;
+      })
     );
   };
+
+  // Get all teachers (not filtered by subject for now)
+  
 
   if (loading) {
     return (
@@ -296,6 +350,13 @@ export default function RecordGrades() {
           </div>
         )}
 
+        {/* Debug Info */}
+        {teachers.length === 0 && (
+          <div className="alert alert-warning mb-4">
+            <span>No teachers found in the system. Please add teachers first.</span>
+          </div>
+        )}
+
         {/* Grades Table */}
         <div className="overflow-x-auto">
           <table className="table table-zebra w-full">
@@ -323,7 +384,7 @@ export default function RecordGrades() {
                   const currentGrade = editingGrades[subject._id];
                   const percent = currentGrade?.percent ?? "";
                   const teacherId = currentGrade?.teacher_ref ?? "";
-                  const availableTeachers = getTeachersForSubject(subject._id);
+                  const availableTeachers = getTeachersForSubject(subject._id, subject.semester);
 
                   return (
                     <tr key={subject._id}>

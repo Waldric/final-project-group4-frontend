@@ -1,16 +1,24 @@
 import { useState, useEffect } from "react";
 
-const AccountForm = ({ showForm, setShowForm, editMode, form, handleChange, handleSubmit, resetForm }) => {
-  const departments = ["IS", "CCS", "COS", "COE", "System"];
-  const adminLevels = ["sys_admin", "department_admin"];
-  
-  const [isEmailFocused, setIsEmailFocused] = useState(false);
-  const [selectedTeacherDepts, setSelectedTeacherDepts] = useState([]);
+const AccountForm = ({
+  showForm,
+  setShowForm,
+  editMode,
+  form,
+  handleChange,
+  handleSubmit,
+  resetForm
+}) => {
+  const departments = ["IS", "CCS", "COS", "COE"];
 
-  // Get available courses based on department
+  const [isEmailFocused, setIsEmailFocused] = useState(false);
+
+  // ================================
+  // STUDENT: Get available courses
+  // ================================
   const getAvailableCourses = () => {
     if (form.user_type !== "Student") return [];
-    
+
     switch (form.department) {
       case "IS":
         return ["Integrated School"];
@@ -19,16 +27,12 @@ const AccountForm = ({ showForm, setShowForm, editMode, form, handleChange, hand
       case "COE":
         return [
           "BS Mechanical Engineering",
-          "BS Computer Engineering", 
+          "BS Computer Engineering",
           "BS Civil Engineering",
-          "BS Electrical Engineering"
+          "BS Electrical Engineering",
         ];
       case "COS":
-        return [
-          "BS Chemistry",
-          "BS Physics",
-          "BS Environmental Science"
-        ];
+        return ["BS Chemistry", "BS Physics", "BS Environmental Science"];
       default:
         return [];
     }
@@ -36,12 +40,14 @@ const AccountForm = ({ showForm, setShowForm, editMode, form, handleChange, hand
 
   const availableCourses = getAvailableCourses();
 
-  // Get available year levels based on department
+  // ================================
+  // STUDENT: Year Levels
+  // ================================
   const getYearLevels = () => {
     if (form.user_type === "Student" && form.department === "IS") {
-      return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; // IS: Grade 1-12
+      return Array.from({ length: 12 }, (_, i) => i + 1);
     }
-    return [1, 2, 3, 4]; // Other departments: Year 1-4
+    return [1, 2, 3, 4];
   };
 
   const yearLevels = getYearLevels();
@@ -51,37 +57,38 @@ const AccountForm = ({ showForm, setShowForm, editMode, form, handleChange, hand
   useEffect(() => {
     if (form.user_type === "Student" && form.department) {
       const courses = getAvailableCourses();
-      // If current course is not in available courses, reset it
       if (form.course && !courses.includes(form.course)) {
         handleChange({ target: { name: "course", value: "" } });
       }
     }
   }, [form.department]);
 
-  // Handle changes to form fields with validations
+  // ================================
+  // General Field Handler
+  // ================================
   const handleFieldChange = (e) => {
     const { name, value } = e.target;
 
-    // Email validation for create mode
+    // Auto-complete email for create mode
     if (name === "email" && !editMode) {
       const localPart = value.split("@")[0];
-      handleChange({ target: { name: "email", value: localPart ? `${localPart}@mie.edu.ph` : "" } });
+      handleChange({
+        target: {
+          name: "email",
+          value: localPart ? `${localPart}@mie.edu.ph` : "",
+        },
+      });
       return;
     }
 
-    // System department validation
-    if (name === "user_type") {
-      if (value !== "Admin" && form.department === "System") {
-        alert("Only Admin users can be assigned to the System department.");
-        handleChange({ target: { name: "department", value: "" } });
-      }
-      // Reset teacher departments when changing user type
-      if (value !== "Teacher") {
-        setSelectedTeacherDepts([]);
-      }
+    // If switching away from Teacher, reset its department
+    if (name === "user_type" && value !== "Teacher") {
+      handleChange({
+        target: { name: "teacher_department", value: "" },
+      });
     }
 
-    // Reset course and year level when department changes
+    // Reset student course/year_level when department changes
     if (name === "department" && form.user_type === "Student") {
       handleChange({ target: { name: "course", value: "" } });
       handleChange({ target: { name: "year_level", value: 1 } });
@@ -90,60 +97,39 @@ const AccountForm = ({ showForm, setShowForm, editMode, form, handleChange, hand
     handleChange(e);
   };
 
-  // Validate email local part on blur or submission
+  // Email validation
   const validateEmailLocalPart = (localPart) => {
     if (localPart && /[\s<>]/.test(localPart)) {
       alert("Please enter a valid email local part (e.g., john.doe).");
-      handleChange({ target: { name: "email", value: "" } });
+      handleChange({
+        target: { name: "email", value: "" },
+      });
     }
   };
 
-  // Handle teacher department checkbox changes
-  const handleTeacherDeptChange = (dept) => {
-    setSelectedTeacherDepts(prev => {
-      if (prev.includes(dept)) {
-        return prev.filter(d => d !== dept);
-      } else {
-        return [...prev, dept];
-      }
-    });
-  };
-
-  // Filter departments based on user_type
-  const availableDepartments = form.user_type === "Admin"
-    ? departments
-    : departments.filter((d) => d !== "System");
-
-  const availableTeacherDepts = departments.filter(d => d !== "System");
-
-  // Handle cancel with error handling
+  // Cancel form
   const handleCancel = () => {
-    try {
-      resetForm();
-      setShowForm(false);
-      setSelectedTeacherDepts([]);
-    } catch (error) {
-      console.error("Error in handleCancel:", error);
-    }
+    resetForm();
+    setShowForm(false);
   };
 
-  // Enhanced submit with role-specific data
+  // ================================
+  // Final Submit Logic
+  // ================================
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    
-    // Build role-specific data
+
     let roleData = {};
-    
+
+    // ---------- STUDENT ----------
     if (form.user_type === "Student") {
-      if (!form.department) {
-        alert("Please select a department for the student.");
-        return;
-      }
-      if (!form.course) {
-        alert("Please select a course for the student.");
-        return;
-      }
+      if (!form.department) return alert("Please select a department.");
+      if (!form.course) return alert("Please select a course.");
+      if (!editMode && !form.student_number)
+        return alert("Please enter a student number.");
+
       roleData = {
+        student_number: form.student_number,
         year_level: form.year_level || 1,
         course: form.course,
         birthday: form.birthday || null,
@@ -153,29 +139,41 @@ const AccountForm = ({ showForm, setShowForm, editMode, form, handleChange, hand
         father: form.father || "",
         guardian_phone: form.guardian_phone || "",
       };
-    } else if (form.user_type === "Teacher") {
-      if (selectedTeacherDepts.length === 0) {
-        alert("Please select at least one department for the teacher.");
-        return;
-      }
+    }
+
+    // ---------- TEACHER ----------
+    else if (form.user_type === "Teacher") {
+      if (!form.teacher_department)
+        return alert("Please select a department for the teacher.");
+
+      if (!editMode && !form.teacher_uid)
+        return alert("Please enter a teacher UID.");
+
       roleData = {
-        teacher_departments: selectedTeacherDepts,
-      };
-    } else if (form.user_type === "Admin") {
-      if (!form.department) {
-        alert("Please select a department for the admin.");
-        return;
-      }
-      roleData = {
-        admin_level: form.admin_level || (form.department === "System" ? "sys_admin" : "department_admin"),
+        teacher_uid: form.teacher_uid,
+        departments: [form.teacher_department], // <--- ONLY ONE
       };
     }
 
-    // Combine form data with role-specific data
+    // ---------- ADMIN ----------
+    else if (form.user_type === "Admin") {
+      if (!form.department) return alert("Please select a department.");
+      if (!editMode && !form.admin_id)
+        return alert("Please enter an admin ID.");
+
+      roleData = {
+        admin_id: form.admin_id,
+        admin_level: "department_admin",
+      };
+    }
+
     const submitData = { ...form, ...roleData };
     handleSubmit(e, submitData);
   };
 
+  // ================================
+  // RENDERING BELOW
+  // ================================
   return (
     <>
       {showForm && (
@@ -184,6 +182,7 @@ const AccountForm = ({ showForm, setShowForm, editMode, form, handleChange, hand
             <h3 className="text-xl font-semibold mb-4">
               {editMode ? "Edit Account" : "Add Account"}
             </h3>
+
             <div className="space-y-3">
               {/* Account ID */}
               <input
@@ -204,7 +203,9 @@ const AccountForm = ({ showForm, setShowForm, editMode, form, handleChange, hand
                   className="input input-bordered w-full pr-24"
                   placeholder={editMode ? "Email" : "john.doe"}
                   required
-                  value={editMode ? form.email : form.email.replace("@mie.edu.ph", "")}
+                  value={
+                    editMode ? form.email : form.email.replace("@mie.edu.ph", "")
+                  }
                   onChange={handleFieldChange}
                   onFocus={() => setIsEmailFocused(true)}
                   onBlur={(e) => {
@@ -213,13 +214,13 @@ const AccountForm = ({ showForm, setShowForm, editMode, form, handleChange, hand
                   }}
                 />
                 {!editMode && !isEmailFocused && form.email && (
-                  <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
                     @mie.edu.ph
                   </span>
                 )}
               </div>
 
-              {/* Password (only for create mode) */}
+              {/* Password (only create mode) */}
               {!editMode && (
                 <input
                   type="password"
@@ -233,7 +234,7 @@ const AccountForm = ({ showForm, setShowForm, editMode, form, handleChange, hand
                 />
               )}
 
-              {/* First and Last Name */}
+              {/* Names */}
               <div className="flex gap-2">
                 <input
                   type="text"
@@ -267,30 +268,47 @@ const AccountForm = ({ showForm, setShowForm, editMode, form, handleChange, hand
                 <option>Admin</option>
               </select>
 
-              {/* ========== STUDENT SPECIFIC FIELDS ========== */}
+              {/* ===================================================== */}
+              {/* STUDENT FORM FIELDS */}
+              {/* ===================================================== */}
               {form.user_type === "Student" && (
                 <>
                   <div className="border-t pt-3 mt-3">
-                    <h4 className="font-semibold text-sm mb-2">Student Information</h4>
+                    <h4 className="font-semibold text-sm mb-2">
+                      Student Information
+                    </h4>
                   </div>
+
+                  {/* Student Number */}
+                  {!editMode && (
+                    <input
+                      type="text"
+                      name="student_number"
+                      className="input input-bordered w-full"
+                      placeholder="Student Number *"
+                      required
+                      value={form.student_number || ""}
+                      onChange={handleChange}
+                    />
+                  )}
 
                   {/* Department */}
-                  <div>
-                    <select
-                      name="department"
-                      className="select select-bordered w-full"
-                      value={form.department}
-                      onChange={handleFieldChange}
-                      required
-                    >
-                      <option value="">Select Department *</option>
-                      {availableDepartments.map((d) => (
-                        <option key={d} value={d}>{d}</option>
-                      ))}
-                    </select>
-                  </div>
+                  <select
+                    name="department"
+                    className="select select-bordered w-full"
+                    value={form.department}
+                    onChange={handleFieldChange}
+                    required
+                  >
+                    <option value="">Select Department *</option>
+                    {departments.map((d) => (
+                      <option key={d} value={d}>
+                        {d}
+                      </option>
+                    ))}
+                  </select>
 
-                  {/* Course - Only show if department is selected */}
+                  {/* Course */}
                   {form.department && (
                     <select
                       name="course"
@@ -301,12 +319,14 @@ const AccountForm = ({ showForm, setShowForm, editMode, form, handleChange, hand
                     >
                       <option value="">Select Course *</option>
                       {availableCourses.map((c) => (
-                        <option key={c} value={c}>{c}</option>
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
                       ))}
                     </select>
                   )}
 
-                  {/* Year/Grade Level - Only show if department is selected */}
+                  {/* Year / Grade Level */}
                   {form.department && (
                     <select
                       name="year_level"
@@ -315,7 +335,9 @@ const AccountForm = ({ showForm, setShowForm, editMode, form, handleChange, hand
                       onChange={handleChange}
                       required
                     >
-                      <option value="">Select {isIS ? "Grade" : "Year"} Level *</option>
+                      <option value="">
+                        Select {isIS ? "Grade" : "Year"} Level *
+                      </option>
                       {yearLevels.map((y) => (
                         <option key={y} value={y}>
                           {isIS ? `Grade ${y}` : `Year ${y}`}
@@ -324,17 +346,14 @@ const AccountForm = ({ showForm, setShowForm, editMode, form, handleChange, hand
                     </select>
                   )}
 
-                  {/* Birthday */}
+                  {/* Additional student info */}
                   <input
                     type="date"
                     name="birthday"
                     className="input input-bordered w-full"
-                    placeholder="Birthday"
                     value={form.birthday || ""}
                     onChange={handleChange}
                   />
-
-                  {/* Address */}
                   <input
                     type="text"
                     name="address"
@@ -343,8 +362,6 @@ const AccountForm = ({ showForm, setShowForm, editMode, form, handleChange, hand
                     value={form.address || ""}
                     onChange={handleChange}
                   />
-
-                  {/* Phone */}
                   <input
                     type="text"
                     name="phone"
@@ -353,8 +370,6 @@ const AccountForm = ({ showForm, setShowForm, editMode, form, handleChange, hand
                     value={form.phone || ""}
                     onChange={handleChange}
                   />
-
-                  {/* Mother's Name */}
                   <input
                     type="text"
                     name="mother"
@@ -363,8 +378,6 @@ const AccountForm = ({ showForm, setShowForm, editMode, form, handleChange, hand
                     value={form.mother || ""}
                     onChange={handleChange}
                   />
-
-                  {/* Father's Name */}
                   <input
                     type="text"
                     name="father"
@@ -373,8 +386,6 @@ const AccountForm = ({ showForm, setShowForm, editMode, form, handleChange, hand
                     value={form.father || ""}
                     onChange={handleChange}
                   />
-
-                  {/* Guardian Phone */}
                   <input
                     type="text"
                     name="guardian_phone"
@@ -386,84 +397,116 @@ const AccountForm = ({ showForm, setShowForm, editMode, form, handleChange, hand
                 </>
               )}
 
-              {/* ========== TEACHER SPECIFIC FIELDS ========== */}
+              {/* ===================================================== */}
+              {/* TEACHER FIELDS */}
+              {/* ===================================================== */}
               {form.user_type === "Teacher" && (
                 <>
                   <div className="border-t pt-3 mt-3">
-                    <h4 className="font-semibold text-sm mb-2">Teacher Information</h4>
+                    <h4 className="font-semibold text-sm mb-2">
+                      Teacher Information
+                    </h4>
                   </div>
 
-                  {/* Multiple Department Selection */}
+                  {/* Teacher UID */}
+                  {!editMode && (
+                    <input
+                      type="text"
+                      name="teacher_uid"
+                      className="input input-bordered w-full"
+                      placeholder="Teacher UID *"
+                      required
+                      value={form.teacher_uid || ""}
+                      onChange={handleChange}
+                    />
+                  )}
+
+                  {/* Single Department Select */}
                   <div className="border rounded-lg p-3">
                     <label className="block text-sm font-medium mb-2">
-                      Departments * (Select at least one)
+                      Department * (Teacher)
                     </label>
-                    <div className="grid grid-cols-2 gap-2">
-                      {availableTeacherDepts.map((dept) => (
-                        <label key={dept} className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            className="checkbox checkbox-sm"
-                            checked={selectedTeacherDepts.includes(dept)}
-                            onChange={() => handleTeacherDeptChange(dept)}
-                          />
-                          <span className="text-sm">{dept}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {/* ========== ADMIN SPECIFIC FIELDS ========== */}
-              {form.user_type === "Admin" && (
-                <>
-                  <div className="border-t pt-3 mt-3">
-                    <h4 className="font-semibold text-sm mb-2">Admin Information</h4>
-                  </div>
-
-                  {/* Department */}
-                  <div>
                     <select
-                      name="department"
+                      name="teacher_department"
                       className="select select-bordered w-full"
-                      value={form.department}
-                      onChange={handleChange}
+                      value={form.teacher_department || ""}
+                      onChange={(e) =>
+                        handleChange({
+                          target: {
+                            name: "teacher_department",
+                            value: e.target.value,
+                          },
+                        })
+                      }
                       required
                     >
                       <option value="">Select Department *</option>
                       {departments.map((d) => (
-                        <option key={d} value={d}>{d}</option>
+                        <option key={d} value={d}>
+                          {d}
+                        </option>
                       ))}
                     </select>
                   </div>
+                </>
+              )}
 
-                  {/* Admin Level */}
+              {/* ===================================================== */}
+              {/* ADMIN FIELDS */}
+              {/* ===================================================== */}
+              {form.user_type === "Admin" && (
+                <>
+                  <div className="border-t pt-3 mt-3">
+                    <h4 className="font-semibold text-sm mb-2">
+                      Admin Information
+                    </h4>
+                  </div>
+
+                  {!editMode && (
+                    <input
+                      type="text"
+                      name="admin_id"
+                      className="input input-bordered w-full"
+                      placeholder="Admin ID *"
+                      required
+                      value={form.admin_id || ""}
+                      onChange={handleChange}
+                    />
+                  )}
+
                   <select
-                    name="admin_level"
+                    name="department"
                     className="select select-bordered w-full"
-                    value={form.admin_level || (form.department === "System" ? "sys_admin" : "department_admin")}
+                    value={form.department}
                     onChange={handleChange}
+                    required
                   >
-                    <option value="">Select Admin Level *</option>
-                    {adminLevels.map((level) => (
-                      <option key={level} value={level}>
-                        {level === "sys_admin" ? "System Admin" : "Department Admin"}
+                    <option value="">Select Department *</option>
+                    {departments.map((d) => (
+                      <option key={d} value={d}>
+                        {d}
                       </option>
                     ))}
                   </select>
+
                   <p className="text-xs text-gray-500">
-                    System admins have full access, Department admins manage their department
+                    Department admins manage their assigned department
                   </p>
                 </>
               )}
 
-              {/* Action Buttons */}
+              {/* ===================================================== */}
+              {/* ACTION BUTTONS */}
+              {/* ===================================================== */}
               <div className="flex justify-end gap-2 pt-4 border-t mt-4">
                 <button type="button" className="btn" onClick={handleCancel}>
                   Cancel
                 </button>
-                <button type="button" className="btn btn-primary" onClick={handleFormSubmit}>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={handleFormSubmit}
+                >
                   {editMode ? "Save Changes" : "Save Account"}
                 </button>
               </div>
