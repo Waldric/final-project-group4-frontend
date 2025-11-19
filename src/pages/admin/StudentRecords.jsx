@@ -181,13 +181,13 @@ export default function StudentRecords() {
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
-                stroke-width="1.5"
+                strokeWidth="1.5"
                 stroke="currentColor"
-                class="size-6"
+                className="size-6"
               >
                 <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                   d="M12 4.5v15m7.5-7.5h-15"
                 />
               </svg>
@@ -196,7 +196,7 @@ export default function StudentRecords() {
           </div>
         </div>
 
-       {/* ---------------- Table ---------------- */}
+        {/* ---------------- Table ---------------- */}
         <div className="m-5 overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
           {loading ? (
             <div className="text-center py-10 text-gray-500">Loading...</div>
@@ -274,7 +274,7 @@ export default function StudentRecords() {
           onClose={() => setAddOpen(false)}
           onAdded={() => {
             setAddOpen(false);
-            fetchStudents(); // refresh list
+            fetchStudents(); 
           }}
         />
       </div>

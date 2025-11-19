@@ -10,7 +10,7 @@ const TeacherProfileView = () => {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // ---- NEW STATES FOR DYNAMIC MODAL ----
+  // ---- STATES FOR DYNAMIC MODAL ----
   const [showModal, setShowModal] = useState(false);
   const [modalFields, setModalFields] = useState({});
   const [modalTitle, setModalTitle] = useState("");
@@ -91,7 +91,9 @@ const TeacherProfileView = () => {
   }
 
   // ---- Fallbacks ----
-  const fullName = `${account.firstname || ""} ${account.lastname || ""}`.trim();
+  const fullName = `${account.firstname || ""} ${
+    account.lastname || ""
+  }`.trim();
   const role = account.user_type || "Teacher";
   const department = account.department || "—";
   const status = account.status || "—";
@@ -115,9 +117,8 @@ const TeacherProfileView = () => {
 
       {/* MAIN GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mt-6">
-
         {/* LEFT COLUMN */}
-        <div className="bg-white shadow-md rounded-2xl p-4 border border-gray-200 text-center lg:h-105">
+        <div className="bg-white shadow-md rounded-2xl p-4 border border-gray-200 text-center lg:h-85.5 flex flex-col justify-center items-center">
           <img
             src={avatarSrc}
             alt="Teacher"
@@ -125,22 +126,34 @@ const TeacherProfileView = () => {
               e.currentTarget.onerror = null;
               e.currentTarget.src = "/mie-logo.png";
             }}
-            className="w-24 h-24 rounded-full mb-4 object-cover mx-auto"
+            className="w-20 h-20 rounded-full mb-4 object-cover mx-auto mt-3"
           />
 
           <h2 className="font-semibold text-lg">{fullName}</h2>
           <p className="text-gray-500 text-sm">{role}</p>
 
-          <div className="mt-4 text-sm space-y-1">
-            <p><span className="font-medium">Account ID:</span> {accountId}</p>
-            <p><span className="font-medium">Department:</span> {department}</p>
-            <p><span className="font-medium">Status:</span> {status}</p>
+          <div className="mt-4 text-sm space-y-2 px-15">
+            <div className="grid grid-cols-[100px_1fr] gap-3 items-start">
+              <span className="font-medium w-28 text-left shrink-0">
+                Account ID:
+              </span>
+              <span className="text-gray-600 whitespace-nowrap">
+                {accountId}
+              </span>
+            </div>
+            <div className="grid grid-cols-[100px_1fr] gap-3 items-start">
+              <span className="font-medium w-28 text-left shrink-0">
+                Department:
+              </span>
+              <span className="text-gray-600 whitespace-nowrap">
+                {department}
+              </span>
+            </div>
           </div>
         </div>
 
         {/* RIGHT COLUMN */}
         <div className="lg:col-span-3 flex flex-col gap-6">
-
           {/* PERSONAL DETAILS */}
           <Card
             title="Personal Details"
@@ -164,16 +177,20 @@ const TeacherProfileView = () => {
           </Card>
 
           {/* ACCOUNT INFORMATION */}
-          <Card
-            title="Account Information" hideEdit={true}>
+          <Card title="Account Information" hideEdit={true}>
             <Grid>
               <Input label="Account ID" value={accountId} />
               <Input label="Status" value={status} />
-              <Input label="Date Created" value={dateCreated} />
-              <Input label="Last Login" value={lastLogin} />
+              <Input
+                label="Account Date Created"
+                value={
+                  account.date_created
+                    ? new Date(account.date_created).toLocaleString()
+                    : "N/A"
+                }
+              />
             </Grid>
           </Card>
-
         </div>
       </div>
 
@@ -201,7 +218,7 @@ const Card = ({ title, children, onEdit, hideEdit }) => (
           className="btn btn-sm bg-[#5603AD] hover:bg-purple-700 text-white rounded-lg"
           onClick={onEdit}
         >
-          Edit
+          Edit Details
         </button>
       )}
     </div>

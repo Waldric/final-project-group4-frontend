@@ -15,6 +15,8 @@ const StudentProfileView = () => {
   const [modalFields, setModalFields] = useState({});
   const [modalTitle, setModalTitle] = useState("");
 
+  const avatarSrc = (user && (user.photo || user.avatar)) || "/mie-logo.png";
+
   useEffect(() => {
     if (!user || !user.id) {
       setErrorMsg("No logged-in user found. Please sign in again.");
@@ -98,34 +100,58 @@ const StudentProfileView = () => {
 
       {/* MAIN GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mt-6">
-
         {/* LEFT COLUMN */}
-        <div className="bg-white shadow-md rounded-2xl p-4 border border-gray-200 text-center lg:h-81">
+        <div className="bg-white shadow-md rounded-2xl p-4 border border-gray-200 text-center lg:h-80.5 flex flex-col justify-center items-center">
           <img
-            src="/waguri.jpg"
+            src={avatarSrc}
             alt="Profile"
-            className="w-24 h-24 rounded-full mb-4 object-cover mx-auto"
+            onError={(e) => {
+              e.currentTarget.onerror = null; 
+              e.currentTarget.src = "/mie-logo.png"; 
+            }}
+            className="w-20 h-20 rounded-full mb-4 object-cover mx-auto border border-gray-500"
           />
 
           <h2 className="font-semibold text-lg">
             {user.firstname} {user.lastname}
           </h2>
           <p className="text-gray-500 text-sm">Student</p>
-
-          <p className="text-sm mt-2">
+          <p className="text-sm mt-1">
             <span className="font-medium">ID:</span> {student.student_number}
           </p>
 
-          <div className="mt-4 text-sm space-y-1">
-            <p><span className="font-medium">Program:</span> {student.course}</p>
-            <p><span className="font-medium">Department:</span> {student.department}</p>
-            <p><span className="font-medium">Year Level:</span> {student.year_level}</p>
+          <div className="mt-4 text-sm space-y-3">
+            <div className="grid grid-cols-[100px_1fr] gap-3 items-start">
+              <span className="font-medium text-gray-700">Program:</span>
+              <span className="text-gray-600 wrap-break-words">
+                {student.course}
+              </span>
+            </div>
+            <div className="grid grid-cols-[120px_1fr] gap-3 items-start">
+              <span className="font-medium text-gray-700">Department:</span>
+              <span className="text-gray-600 wrap-break-words">
+                {student.department}
+              </span>
+            </div>
+            <div className="grid grid-cols-[106px_1fr] gap-3 items-start">
+              <span className="font-medium text-gray-700">Year Level:</span>
+              <span className="text-gray-600 wrap-break-words">
+                {" "}
+                {student.department === "IS"
+                  ? `Grade ${student.year_level}`
+                  : {
+                      1: "1st Year",
+                      2: "2nd Year",
+                      3: "3rd Year",
+                      4: "4th Year",
+                    }[student.year_level] || `Year ${student.year_level}`}
+              </span>
+            </div>
           </div>
         </div>
 
         {/* RIGHT COLUMN */}
         <div className="lg:col-span-3 flex flex-col gap-6">
-
           {/* PERSONAL DETAILS */}
           <Card
             title="Personal Details"
@@ -145,8 +171,14 @@ const StudentProfileView = () => {
             }
           >
             <Grid>
-              <Input label="Full Name" value={`${user.firstname} ${user.lastname}`} />
-              <Input label="Birthdate" value={formatBirthday(student.birthday)} />
+              <Input
+                label="Full Name"
+                value={`${user.firstname} ${user.lastname}`}
+              />
+              <Input
+                label="Birthdate"
+                value={formatBirthday(student.birthday)}
+              />
               <Input label="Phone Number" value={student.phone} />
               <Input label="Address" value={student.address} />
               <Input label="Mother" value={student.mother} />
@@ -156,51 +188,46 @@ const StudentProfileView = () => {
           </Card>
 
           {/* ACADEMIC INFO */}
-          <Card
-            title="Academic Information"
-            onEdit={() =>
-              openEditModal(
-                {
-                  department: student.department,
-                  course: student.course,
-                  year_level: student.year_level,
-                  student_number: student.student_number,
-                },
-                "Edit Academic Information"
-              )
-            }
-          >
+          <Card title="Academic Information">
             <Grid>
               <Input label="Department" value={student.department} />
               <Input label="Course" value={student.course} />
-              <Input label="Year Level" value={student.year_level} />
+              <Input
+                label="Year Level"
+                value={
+                  student.department === "IS"
+                    ? `Grade ${student.year_level}`
+                    : {
+                        1: "1st Year",
+                        2: "2nd Year",
+                        3: "3rd Year",
+                        4: "4th Year",
+                      }[student.year_level] || `Year ${student.year_level}`
+                }
+              />
               <Input label="Student Number" value={student.student_number} />
             </Grid>
           </Card>
 
           {/* ACCOUNT INFO */}
-          <Card
-            title="Account Information"
-            onEdit={() =>
-              openEditModal(
-                {
-                  firstname: user.firstname,
-                  lastname: user.lastname,
-                  email: user.email,
-                  department: user.department,
-                },
-                "Edit Account Information"
-              )
-            }
-          >
+          <Card title="Account Information">
             <Grid>
               <Input label="Account ID" value={user.id} />
               <Input label="Email" value={user.email} />
               <Input label="Department" value={user.department || "N/A"} />
               <Input label="User Type" value={user.user_type || "Student"} />
+              <Input
+                label="Account Date Created"
+                value={
+                  student.accounts_ref?.date_created
+                    ? new Date(
+                        student.accounts_ref.date_created
+                      ).toLocaleString()
+                    : "N/A"
+                }
+              />
             </Grid>
           </Card>
-
         </div>
       </div>
 
@@ -222,12 +249,14 @@ const Card = ({ title, children, onEdit }) => (
   <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-6">
     <div className="flex justify-between items-center mb-4">
       <h3 className="font-semibold text-lg">{title}</h3>
-      <button
-        className="btn btn-sm bg-[#5603AD] hover:bg-purple-700 text-white rounded-lg"
-        onClick={onEdit}
-      >
-        Edit Details
-      </button>
+      {onEdit && (
+        <button
+          className="btn btn-sm bg-[#5603AD] hover:bg-purple-700 text-white rounded-lg"
+          onClick={onEdit}
+        >
+          Edit Details
+        </button>
+      )}
     </div>
     {children}
   </div>

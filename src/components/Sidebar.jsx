@@ -153,12 +153,6 @@ const Sidebar = ({ activeItem, setActiveItem, isOpen, setIsOpen, user }) => {
       //   label: "Announcements",
       //   path: "/dashboard/admin/announcements",
       // },
-      {
-        id: "reports_and_analytics",
-        icon: ChartPieIcon,
-        label: "Reports & Analytics",
-        path: "/dashboard/admin/reports-analytics",
-      },
     ],
   };
 
@@ -220,9 +214,9 @@ const Sidebar = ({ activeItem, setActiveItem, isOpen, setIsOpen, user }) => {
                   >
                     <Icon className="w-5 h-5" />
                     <span
-                      className={`text-sm relative text-left ${
+                      className={`text-sm relative text-left inline-block w-auto whitespace-nowrap ${
                         isActive
-                          ? "after:absolute after:rounded-full after:transition-all after:duration-300 after:scale-x-100 after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-[#5603AD] text-[#5603AD]"
+                          ? "after:absolute after:rounded-full after:transition-all after:duration-300 after:scale-x-100 after:-bottom-1 after:left-0 after:w-full after:h-1 after:bg-[#5603AD] text-[#5603AD]"
                           : ""
                       }`}
                     >
